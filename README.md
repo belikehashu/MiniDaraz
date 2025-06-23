@@ -19,3 +19,4 @@ To explore products: localhost/products/
 5. for editing product, click edit button on specific product
 6. for viewing orders, visit: localhost/adminpanel/orders/
 
+_Its a Demo Django Project for learning purpose_

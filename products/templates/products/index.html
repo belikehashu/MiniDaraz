@@ -1,0 +1,12 @@
+<h2>All Products</h2>
+{% for product in products %}
+  <div style="border: 1px solid black; padding: 10px; margin: 5px;">
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.description|slice:":100" }}...</p>
+    <p>Rs. {{ product.price }}</p>
+    <a href="{% url 'product_detail' product.id %}">View Details</a>
+    <a href="{% url 'add_to_cart' product.id %}">Add to Cart</a>
+
+  </div>
+{% endfor %}
+

@@ -1,0 +1,8 @@
+<h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Product</h2>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Save</button>
+</form>
+<a href="{% url 'admin_products' %}">← Back to Product List</a>
+

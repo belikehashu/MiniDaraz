@@ -1,0 +1,13 @@
+<h2>Product List</h2>
+<a href="{% url 'add_product' %}">+ Add Product</a>
+<ul>
+  {% for product in products %}
+    <li>
+      {{ product.name }} - Rs. {{ product.price }}
+      <a href="{% url 'edit_product' product.id %}">Edit</a>
+      <a href="{% url 'delete_product' product.id %}">Delete</a>
+    </li>
+  {% endfor %}
+</ul>
+<a href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+

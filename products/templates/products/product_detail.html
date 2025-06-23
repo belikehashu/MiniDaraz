@@ -1,0 +1,6 @@
+<h2>{{ product.name }}</h2>
+<img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">
+<p>{{ product.description }}</p>
+<p>Price: Rs. {{ product.price }}</p>
+<a href="{% url 'index' %}">← Back to All Products</a>
+

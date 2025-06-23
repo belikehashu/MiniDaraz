@@ -1,0 +1,15 @@
+<h2>All Orders</h2>
+<ul>
+  {% for order in orders %}
+    <li>
+      <strong>Order #{{ order.id }}</strong> - {{ order.user.username }} - Rs. {{ order.total_price }} - {{ order.status }}
+      <ul>
+        {% for item in order.orderitem_set.all %}
+          <li>{{ item.product.name }} x{{ item.quantity }}</li>
+        {% endfor %}
+      </ul>
+    </li>
+  {% endfor %}
+</ul>
+<a href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+

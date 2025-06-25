@@ -1,7 +1,19 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from products.models import Product
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem, Cart
 from .models import Order, OrderItem
+
+@login_required
+def buy_now_view(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        order = Order.objects.create(user=request.user, total_price=product.price)
+        OrderItem.objects.create(order=order, product=product, quantity=1)
+        return redirect('order_history')
+
+    return render(request, 'orders/buy_now.html', {'product': product})
 
 @login_required
 def checkout_view(request):

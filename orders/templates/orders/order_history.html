@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Order History{% endblock %}
+
+{% block content %}
 <h2>My Orders</h2>
 
 {% if orders %}
@@ -17,5 +21,6 @@
   <p>You haven't placed any orders yet.</p>
 {% endif %}
 
-<a href="{% url 'index' %}">← Continue Shopping</a>
+<a href="{% url 'index' %}">Home</a>
+{% endblock %}
 

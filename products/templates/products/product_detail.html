@@ -1,6 +1,17 @@
-<h2>{{ product.name }}</h2>
+{% extends "base.html" %}
+{% block title %}Product{% endblock %}
+
+{% block content %}
+<a href="{% url 'index' %}"><Button> < </Button></a>
+<br>
+<br>
 <img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">
+<h2>{{ product.name }}</h2>
 <p>{{ product.description }}</p>
 <p>Price: Rs. {{ product.price }}</p>
-<a href="{% url 'index' %}">← Back to All Products</a>
+
+
+<a href="{% url 'buy_now' product.id%}"><Button>Buy Now</Button></a>
+<a href="{% url 'add_to_cart' product.id %}"><Button>Add to Cart</Button></a>
+{% endblock %}
 

@@ -3,7 +3,6 @@
 
 {% block content %}
 <h2>Your Cart</h2>
-
 {% if items %}
   <ul>
     {% for item in items %}
@@ -26,4 +25,3 @@
 <a href="{% url 'checkout' %}">Proceed to Checkout</a>
 <a href="{% url 'index' %}">← Continue Shopping</a>
 {% endblock %}
-

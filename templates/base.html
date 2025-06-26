@@ -12,7 +12,6 @@
             <a href="{% url 'index' %}">Home</a> |
             <a href="{% url 'cart_view' %}">Cart</a> |
             <a href="{% url 'order_history' %}">My Orders</a> |
-            
             {% if user.is_authenticated %}
                 {% if user.is_superuser %}
                     <a href="{% url 'admin_dashboard' %}">Admin Panel</a> |
@@ -26,7 +25,6 @@
         </nav>
         <hr>
     </header>
-
     <main>
         {% if messages %}
           <ul>
@@ -35,17 +33,14 @@
             {% endfor %}
           </ul>
         {% endif %}
-
         {% block content %}
 
         {% endblock %}
     </main>
-
     <footer>
         <hr>
         <p style="text-align:center;">© 2025 MiniDaraz. All rights reserved.</p>
     </footer>
-
 </body>
 </html>
 

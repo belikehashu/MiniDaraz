@@ -32,31 +32,25 @@ def login_view(request):
             messages.error(request, "Email not found")
     return render(request, 'users/login.html')
 
-
 @login_required
 def profile_view(request):
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, instance=request.user)
         address_form = AddressForm(request.POST)
-
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully.")
-
         if address_form.is_valid():
             address = address_form.save(commit=False)
             address.user = request.user
             address.save()
             messages.success(request, "Address added.")
-
         return redirect('profile')
-    
     else:
         form = ProfileUpdateForm(instance=request.user)
         address_form = AddressForm()
 
     addresses = Address.objects.filter(user=request.user)
-
     return render(request, 'users/profile.html', {
         'form': form,
         'address_form': address_form,

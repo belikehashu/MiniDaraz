@@ -7,15 +7,11 @@ def index_view(request):
     category_id = request.GET.get('category')  # category id
 
     products = Product.objects.all()
-
     if query:
         products = products.filter(name__icontains=query)
-
     if category_id and category_id != "all":
         products = products.filter(category_id=category_id)
-
     categories = Category.objects.all()
-
     return render(request, 'products/index.html', {
         'products': products,
         'categories': categories,

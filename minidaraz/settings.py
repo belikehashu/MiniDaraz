@@ -4,18 +4,11 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 SECRET_KEY = 'django-insecure-)r^#mtmz9dffj5fv!jw&e@g_!$%o-^&k8wc3rs$70_w&(e0wr*'
-
-
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',

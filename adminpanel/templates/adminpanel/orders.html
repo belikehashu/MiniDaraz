@@ -8,7 +8,6 @@
     <li>
       <strong>Order #{{ order.id }}</strong> - {{ order.user.username }} - Rs. {{ order.total_price }} - Status: <strong>{{ order.get_status_display }}</strong>
       <a href="{% url 'update_order_status' order.id %}">[Update]</a>
-
       <ul>
         {% for item in order.orderitem_set.all %}
           <li>{{ item.product.name }} x{{ item.quantity }}</li>
@@ -19,4 +18,3 @@
 </ul>
 <a href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
 {% endblock %}
-

@@ -9,8 +9,6 @@
 <h2>{{ product.name }}</h2>
 <p>{{ product.description }}</p>
 <p>Price: Rs. {{ product.price }}</p>
-
-
 <a href="{% url 'buy_now' product.id%}"><Button>Buy Now</Button></a>
 <a href="{% url 'add_to_cart' product.id %}"><Button>Add to Cart</Button></a>
 {% endblock %}

@@ -7,14 +7,12 @@ def get_user_cart(user):
     cart, created = Cart.objects.get_or_create(user=user)
     return cart
 
-
 @login_required
 def cart_view(request):
     cart = get_user_cart(request.user)
     items = CartItem.objects.filter(cart=cart)
     total = sum(item.product.price * item.quantity for item in items)
     return render(request, 'cart/cart.html', {'items': items, 'total': total})
-
 
 @login_required
 def add_to_cart(request, product_id):
@@ -26,13 +24,11 @@ def add_to_cart(request, product_id):
         item.save()
     return redirect('cart_view')
 
-
 @login_required
 def remove_from_cart(request, item_id):
     item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
     item.delete()
     return redirect('cart_view')
-
 
 @login_required
 def update_cart(request, item_id):

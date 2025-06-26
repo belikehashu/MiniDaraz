@@ -3,7 +3,6 @@
 
 {% block content %}
 <h2>My Orders</h2>
-
 {% if orders %}
   <ul>
     {% for order in orders %}
@@ -34,9 +33,6 @@
 {% else %}
   <p>You haven't placed any orders yet.</p>
 {% endif %}
-
-
-
 <a href="{% url 'index' %}">Home</a>
 {% endblock %}
 

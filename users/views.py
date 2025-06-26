@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm, ProfileUpdateForm
+from .forms import RegisterForm, ProfileUpdateForm, AddressForm
 from django.contrib import messages
+from .models import Address, User
 
 def register_view(request):
     if request.method == 'POST':
@@ -17,26 +18,50 @@ def register_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['email']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
-            return redirect('profile')
-        else:
-            messages.error(request, "Invalid username or password")
+        try:
+            user = User.objects.get(email=email)
+            user = authenticate(request, email=email, password=password)
+            if user:
+                login(request, user)
+                return redirect('profile')
+            else:
+                messages.error(request, "Invalid email or password")
+        except User.DoesNotExist:
+            messages.error(request, "Email not found")
     return render(request, 'users/login.html')
+
 
 @login_required
 def profile_view(request):
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, instance=request.user)
+        address_form = AddressForm(request.POST)
+
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully.")
+
+        if address_form.is_valid():
+            address = address_form.save(commit=False)
+            address.user = request.user
+            address.save()
+            messages.success(request, "Address added.")
+
+        return redirect('profile')
+    
     else:
         form = ProfileUpdateForm(instance=request.user)
-    return render(request, 'users/profile.html', {'form': form})
+        address_form = AddressForm()
+
+    addresses = Address.objects.filter(user=request.user)
+
+    return render(request, 'users/profile.html', {
+        'form': form,
+        'address_form': address_form,
+        'addresses': addresses
+    })
 
 def logout_view(request):
     logout(request)

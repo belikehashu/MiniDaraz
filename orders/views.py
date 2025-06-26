@@ -3,7 +3,6 @@ from products.models import Product
 from django.contrib.auth.decorators import login_required
 from cart.models import CartItem, Cart
 from .models import Order, OrderItem
-
 @login_required
 def buy_now_view(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -14,6 +13,16 @@ def buy_now_view(request, product_id):
         return redirect('order_history')
 
     return render(request, 'orders/buy_now.html', {'product': product})
+
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status == 'Pending':
+        order.status = 'Cancelled'
+        order.save()
+    
+    return redirect('order_history')  # replace with your orders list page name
 
 @login_required
 def checkout_view(request):

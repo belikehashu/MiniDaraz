@@ -2,17 +2,37 @@
 {% block title %}All Products{% endblock %}
 
 {% block content %}
-<h2>Home</h2>
+<h2>All Products</h2>
+<form method="get" style="margin-bottom:20px;">
+  <input type="text" name="q" placeholder="Search product..." value="{{ search_query|default_if_none:'' }}">
+  <select name="category">
+    <option value="all">All Categories</option>
+    {% for cat in categories %}
+      <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+        {{ cat.name }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="submit">Filter</button>
+</form>
 {% for product in products %}
-  <div style="border: 1px solid black; padding: 5px; margin: 5px; ">
-  <img src="{{ product.image.url }}" alt="{{ product.name }}" width="100">
-    <h4><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></h4>
-    <p>{{ product.description|slice:":100" }}...</p>
-    <p>Rs. {{ product.price }}</p>
-    
-    <a href="{% url 'buy_now' product.id%}"><Button>Buy Now</Button></a>
-    <a href="{% url 'add_to_cart' product.id %}"><Button>Add to Cart</Button></a>
+  <div style="border:1px solid black; margin:5px; padding:5px;">
+    <table>
+      <tr>
+        <td>
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" width="150">
+        </td>
+        <td>
+          <h3><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></h3>
+          <p>{{ product.description|slice:":100" }}</p>
+          <p>Rs. {{ product.price }}</p>
+          <a href="{% url 'buy_now' product.id %}"><button>Buy</button></a>
+          <a href="{% url 'add_to_cart' product.id %}"><button>Add to Cart</button></a>
+        </td>
+      </tr>
+    </table>
   </div>
+{% empty %}
+  <p>No products found.</p>
 {% endfor %}
 {% endblock %}
-

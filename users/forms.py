@@ -1,17 +1,18 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
-
+from .models import User, Address
 
 class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
     class Meta:
         model = User
-        fields = ['username', 'email', 'address', 'password1', 'password2']
-
+        fields = ['first_name', 'last_name', 'email', 'phone', 'password1', 'password2']
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'address']
+        fields = ['first_name', 'last_name', 'phone']
+
+class AddressForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = ['street', 'city', 'zip_code', 'country']

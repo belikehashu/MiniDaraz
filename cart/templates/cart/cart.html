@@ -3,25 +3,62 @@
 
 {% block content %}
 <h2>Your Cart</h2>
-{% if items %}
-  <ul>
-    {% for item in items %}
-      <li>
-        {{ item.product.name }} (x{{ item.quantity }}) - Rs. {{ item.product.price }}
-        <form action="{% url 'update_cart' item.id %}" method="post" style="display:inline;">
-          {% csrf_token %}
-          <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
-          <button type="submit">Update</button>
-        </form>
-        <a href="{% url 'remove_from_cart' item.id %}">Remove</a>
-      </li>
-    {% endfor %}
-  </ul>
 
-  <p><strong>Total: Rs. {{ total }}</strong></p>
+{% if items %}
+<form method="post" action="{% url 'checkout' %}" id="checkout-form">
+  {% csrf_token %}
+
+  {% for item in items %}
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+
+      <input type="checkbox" class="checkout-checkbox" value="{{ item.id }}">
+      {{ item.product.name }} - Rs. {{ item.product.price }}
+
+      <input type="hidden" name="item_id_{{ item.id }}" value="{{ item.id }}">
+
+      <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1"
+             class="qty-input" data-id="{{ item.id }}" style="width: 60px; margin-left: 15px;">
+
+      <a href="{% url 'remove_from_cart' item.id %}" style="margin-left: 15px;">Remove</a>
+    </div>
+  {% endfor %}
+
+  <input type="hidden" name="selected_items" id="selected-items-field">
+  <button type="submit">Checkout Selected</button>
+</form>
+<p><strong>Total (All Items): Rs. {{ total }}</strong></p>
 {% else %}
   <p>Your cart is empty.</p>
 {% endif %}
-<a href="{% url 'checkout' %}">Proceed to Checkout</a>
+
 <a href="{% url 'index' %}">← Continue Shopping</a>
+
+<script>
+  document.querySelectorAll('.qty-input').forEach(input => {
+    input.addEventListener('change', function () {
+      const itemId = this.dataset.id;
+      const quantity = this.value;
+      fetch(`/cart/update/${itemId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `quantity=${quantity}`
+      }).then(res => {
+        if (res.ok) {
+          location.reload();
+        }
+      });
+    });
+  });
+
+  document.getElementById('checkout-form').addEventListener('submit', function (e) {
+    const selected = [];
+    document.querySelectorAll('.checkout-checkbox:checked').forEach(cb => {
+      selected.push(cb.value);
+    });
+    document.getElementById('selected-items-field').value = selected.join(',');
+  });
+</script>
 {% endblock %}

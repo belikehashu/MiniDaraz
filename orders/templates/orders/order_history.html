@@ -2,37 +2,40 @@
 {% block title %}Order History{% endblock %}
 
 {% block content %}
-<h2>My Orders</h2>
+<h2 style="margin-bottom: 20px;">My Orders</h2>
+
 {% if orders %}
-  <ul>
-    {% for order in orders %}
-    <li>
-      <strong>Order #{{ order.id }}</strong> - Rs. {{ order.total_price }} - {{ order.status }}
-      <ul>
+  {% for order in orders %}
+    <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+      <h3>Order #{{ order.id }}</h3>
+      <p><strong>Total:</strong> Rs. {{ order.total_price }}</p>
+      <p><strong>Status:</strong> {{ order.status|title }}</p>
+
+      <ul style="margin: 10px 0;">
         {% for item in order.orderitem_set.all %}
           <li>{{ item.product.name }} (x{{ item.quantity }})</li>
         {% endfor %}
       </ul>
-    </li>
-    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-      <p><strong>Order ID: {{ order.id }}</strong></p>
-      <p>Total: ${{ order.total_price }}</p>
-      <p>Status: {{ order.status }}</p>
 
-      {% if order.status == "Pending" %}
-        <form method="post" action="{% url 'cancel_order' order.id %}">
+      {% if order.status|lower == "pending" %}
+        <form method="post" action="{% url 'cancel_order' order.id %}" style="margin-top: 10px;">
           {% csrf_token %}
           <button type="submit">Cancel Order</button>
         </form>
+      {% elif order.status|lower == "cancelled" %}
+        <p><em>Order was cancelled.</em></p>
+        <form method="post" action="{% url 'delete_order_history' order.id %}" style="margin-top: 10px;">
+          {% csrf_token %}
+          <button type="submit">Remove from History</button>
+        </form>
       {% else %}
-        <p><em>Order can't be cancelled ({{ order.status }})</em></p>
+        <p><em>Order cannot be cancelled ({{ order.status|title }}).</em></p>
       {% endif %}
     </div>
-{% endfor %}
-  </ul>
+  {% endfor %}
 {% else %}
   <p>You haven't placed any orders yet.</p>
 {% endif %}
-<a href="{% url 'index' %}">Home</a>
-{% endblock %}
 
+<a href="{% url 'index' %}" style="display: inline-block; margin-top: 20px;">← Back to Home</a>
+{% endblock %}

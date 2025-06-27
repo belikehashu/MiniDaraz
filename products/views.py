@@ -3,9 +3,8 @@ from .models import Product, Category
 from django.db.models import Q
 
 def index_view(request):
-    query = request.GET.get('q')  # search text
-    category_id = request.GET.get('category')  # category id
-
+    query = request.GET.get('q')
+    category_id = request.GET.get('category')
     products = Product.objects.all()
     if query:
         products = products.filter(name__icontains=query)

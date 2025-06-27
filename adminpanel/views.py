@@ -69,4 +69,3 @@ def update_order_status(request, order_id):
     else:
         form = OrderStatusForm(instance=order)
     return render(request, 'adminpanel/update_order_status.html', {'form': form, 'order': order})
-

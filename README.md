@@ -1,9 +1,6 @@
-This second update includes major updates, including better frontend and more improvements which are following:
-- Improved Home Products
-- Added Search and Filter by Catogory Feature
-- Added Cancel Order feature (only works when order status will be pending)
-- Improved profile details
-- Changes login/register credentials
-- Removed username
-- Added multiple addresses
-- Admin can change orders' status too
+This update includes some fixes and improvements which are following:
+- My Order page crashes (Error Resolved)
+- Now users can remove orders from history
+- Updated Cart page to Dynamic
+- Now user can select address for Delivery
+- Now user can select items from All Cart Items to Checkout

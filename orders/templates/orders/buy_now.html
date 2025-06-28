@@ -3,12 +3,16 @@
 {% block content %}
 
 <h2>Buy Now</h2>
+
 <p><strong>Product:</strong> {{ product.name }}</p>
-<p><strong>Price:</strong> Rs. {{ product.price }}</p>
+<p><strong>Price per Unit:</strong> Rs. {{ product.price }}</p>
+
 <form method="post">
   {% csrf_token %}
-  <button type="submit">Place Order</button>
-</form>
-<a href="{% url 'index' %}">← Back to All Products</a>
+  {{ form.as_p }}
 
+  <button type="submit">Confirm Order</button>
+</form>
+
+<a href="{% url 'index' %}">← Back to All Products</a>
 {% endblock %}

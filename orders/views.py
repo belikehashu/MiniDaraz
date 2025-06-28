@@ -4,15 +4,50 @@ from django.contrib.auth.decorators import login_required
 from cart.models import CartItem, Cart
 from .models import Order, OrderItem
 from django.contrib import messages
+from users.models import Address
+from .forms import BuyNowForm, CartCheckoutForm
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+@login_required
+def order_detail_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order_items = OrderItem.objects.filter(order=order)
+    return render(request, 'orders/order_detail.html', {
+        'order': order,
+        'items': order_items
+    })
 
 @login_required
 def buy_now_view(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    user = request.user
+
+    addresses = Address.objects.filter(user=user)
+
     if request.method == 'POST':
-        order = Order.objects.create(user=request.user, total_price=product.price)
-        OrderItem.objects.create(order=order, product=product, quantity=1)
-        return redirect('order_history')
-    return render(request, 'orders/buy_now.html', {'product': product})
+        form = BuyNowForm(request.POST, addresses=addresses)
+        if form.is_valid():
+            quantity = form.cleaned_data['quantity']
+            address_id = form.cleaned_data['address']
+            address_obj = Address.objects.get(id=address_id)
+
+            total_price = product.price * quantity
+            order = Order.objects.create(
+                user=user,
+                total_price=total_price,
+                shipping_address=str(address_obj)
+            )
+            OrderItem.objects.create(order=order, product=product, quantity=quantity)
+
+            return redirect('order_history')
+    else:
+        form = BuyNowForm(addresses=addresses)
+
+    return render(request, 'orders/buy_now.html', {
+        'product': product,
+        'form': form
+    })
 
 @login_required
 def cancel_order(request, order_id):
@@ -40,26 +75,53 @@ def checkout_view(request):
         selected_ids = [int(id) for id in selected_raw.split(',') if id.strip().isdigit()]
 
         cart_items = CartItem.objects.filter(id__in=selected_ids, cart__user=request.user)
-
         if not cart_items.exists():
             messages.error(request, "Please select at least one item to checkout.")
             return redirect('cart_view')
+        request.session['selected_cart_items'] = selected_ids
+        return redirect('checkout_confirmation')
 
-        total = sum(item.product.price * item.quantity for item in cart_items)
+    return redirect('cart_view')
 
-        order = Order.objects.create(user=request.user, total_price=total)
-        for item in cart_items:
-            OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
+@login_required
+def checkout_confirmation_view(request):
+    user = request.user
+    cart = Cart.objects.filter(user=user).first()
+    selected_ids = request.session.get('selected_cart_items', [])
+    cart_items = CartItem.objects.filter(id__in=selected_ids, cart=cart)
+    addresses = Address.objects.filter(user=user)
 
-        cart_items.delete()
+    if request.method == 'POST':
+        form = CartCheckoutForm(request.POST, addresses=addresses)
+        if form.is_valid():
+            address_id = form.cleaned_data['address']
+            address = Address.objects.get(id=address_id)
+            total = sum(item.product.price * item.quantity for item in cart_items)
 
-        messages.success(request, "Order placed successfully.")
-        return redirect('order_history')
+            order = Order.objects.create(
+                user=user,
+                total_price=total,
+                shipping_address=str(address)
+            )
 
-    cart = Cart.objects.filter(user=request.user).first()
-    items = CartItem.objects.filter(cart=cart)
-    total = sum(item.product.price * item.quantity for item in items)
-    return render(request, 'orders/checkout.html', {'items': items, 'total': total})
+            for item in cart_items:
+                OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
+
+            cart_items.delete()
+            del request.session['selected_cart_items']
+            messages.success(request, "Order placed successfully.")
+            return redirect('order_history')
+    else:
+        if not cart_items:
+            messages.error(request, "No valid items selected.")
+            return redirect('cart_view')
+
+        form = CartCheckoutForm(addresses=addresses)
+
+    return render(request, 'orders/checkout_confirmation.html', {
+        'items': cart_items,
+        'form': form
+    })
 
 
 @login_required

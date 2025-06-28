@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Confirm Order{% endblock %}
+{% block content %}
+
+<h2>Confirm Your Order</h2>
+
+<ul>
+  {% for item in items %}
+    <li>{{ item.product.name }} (x{{ item.quantity }}) - Rs. {{ item.product.price }}</li>
+  {% endfor %}
+</ul>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Place Order</button>
+</form>
+
+<a href="{% url 'cart_view' %}">← Go Back to Cart</a>
+
+{% endblock %}

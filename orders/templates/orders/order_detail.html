@@ -1,0 +1,15 @@
+<hr>
+
+{% if order.status == "Pending" %}
+  <form method="post" action="{% url 'cancel_order' order.id %}">
+    {% csrf_token %}
+    <button type="submit" style="margin-right: 10px;">Cancel Order</button>
+  </form>
+{% elif order.status == "Cancelled" %}
+  <form method="post" action="{% url 'delete_order_history_entry' order.id %}">
+    {% csrf_token %}
+    <button type="submit">Remove from History</button>
+  </form>
+{% endif %}
+
+<a href="{% url 'order_history' %}">← Back to My Orders</a>

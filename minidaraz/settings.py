@@ -13,7 +13,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'jjwhjwnhj@gmail.com'
-EMAIL_HOST_PASSWORD = 'emsx obch btro wnfw'
+EMAIL_HOST_PASSWORD = 'abcd efgh ijkl mnop'
 DEFAULT_FROM_EMAIL = 'MiniDaraz <jjwhjwnhj@gmail.com>'
 
 

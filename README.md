@@ -6,3 +6,5 @@ This is a major update which includes frontend enhancement and routings which ar
 - Product images added in cart and checkout
 - Product images added in adminpanel's edit/add pages
 - User can route in in whole project easily
+
+  (update v6>

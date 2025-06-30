@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Update Order Status{% endblock %}
-
 {% block content %}
-<h2>Update Status for Order #{{ order.id }}</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Save</button>
-</form>
-<a href="{% url 'admin_orders' %}">← Back to Orders</a>
+<div style="max-width: 500px; margin: auto; padding: 30px; border: 1px solid #ccc; border-radius: 10px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <h2 style="text-align:center;">Update Status for Order #{{ order.id }}</h2>
+
+  <form method="post" style="margin-top: 20px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit"
+            style="width: 100%; padding: 10px; background-color: #f39c12; color: white; border: none; border-radius: 5px;">
+      Save
+    </button>
+  </form>
+
+  <div style="margin-top: 15px; text-align:center;">
+    <a href="{% url 'admin_orders' %}">← Back to Orders</a>
+  </div>
+</div>
 {% endblock %}

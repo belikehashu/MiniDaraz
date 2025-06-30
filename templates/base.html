@@ -1,46 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}MiniDaraz{% endblock %}</title>
+  <meta charset="UTF-8">
+  <title>{% block title %}MiniDaraz{% endblock %}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #2c3e50;
+      padding: 15px;
+      color: white;
+    }
+    header h1 {
+      margin: 0;
+      text-align: center;
+    }
+    nav {
+      margin-top: 10px;
+      text-align: center;
+    }
+    nav a {
+      color: #ecf0f1;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      padding: 30px;
+      max-width: 1100px;
+      margin: auto;
+      background-color: white;
+      min-height: 80vh;
+    }
+    footer {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 10px;
+    }
+    ul.messages {
+      list-style: none;
+      padding: 0;
+    }
+    ul.messages li {
+      color: green;
+      margin: 10px 0;
+    }
+    button {
+      padding: 8px 16px;
+      margin-top: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    a button {
+      margin-right: 10px;
+    }
+  </style>
 </head>
 <body>
-
-    <header>
-        <h1 style="text-align:center;">MiniDaraz</h1>
-        <nav style="text-align:center;">
-            <a href="{% url 'index' %}">Home</a> |
-            <a href="{% url 'cart_view' %}">Cart</a> |
-            <a href="{% url 'order_history' %}">My Orders</a> |
-            {% if user.is_authenticated %}
-                {% if user.is_superuser %}
-                    <a href="{% url 'admin_dashboard' %}">Admin Panel</a> |
-                {% endif %}
-                <a href="{% url 'profile' %}">Profile</a> |
-                <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a> |
-                <a href="{% url 'register' %}">Register</a>
-            {% endif %}
-        </nav>
-        <hr>
-    </header>
-    <main>
-        {% if messages %}
-          <ul>
-            {% for message in messages %}
-              <li style="color:green;">{{ message }}</li>
-            {% endfor %}
-          </ul>
+  <header>
+    <h1>MiniDaraz</h1>
+    <nav>
+      <a href="{% url 'index' %}">Home</a> |
+      <a href="{% url 'cart_view' %}">Cart</a> |
+      <a href="{% url 'order_history' %}">My Orders</a> |
+      {% if user.is_authenticated %}
+        {% if user.is_superuser %}
+          <a href="{% url 'admin_dashboard' %}">Admin Panel</a> |
         {% endif %}
-        {% block content %}
+        <a href="{% url 'profile' %}">Profile</a> |
+        <a href="{% url 'logout' %}">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}">Login</a> |
+        <a href="{% url 'register' %}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
 
-        {% endblock %}
-    </main>
-    <footer>
-        <hr>
-        <p style="text-align:center;">© 2025 MiniDaraz. All rights reserved.</p>
-    </footer>
+  <main>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>© 2025 MiniDaraz. All rights reserved.</p>
+  </footer>
 </body>
 </html>
-

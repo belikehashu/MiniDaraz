@@ -1,18 +1,39 @@
 {% extends "base.html" %}
 {% block title %}Product List{% endblock %}
-
 {% block content %}
-<h2>Product List</h2>
-<a href="{% url 'add_product' %}">+ Add Product</a>
-<ul>
-  {% for product in products %}
-    <li>
-      {{ product.name }} - Rs. {{ product.price }}
-      <a href="{% url 'edit_product' product.id %}">Edit</a>
-      <a href="{% url 'delete_product' product.id %}">Delete</a>
-    </li>
-  {% endfor %}
-</ul>
-<a href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
-{% endblock %}
+<div style="max-width: 900px; margin: auto;">
+  <h2 style="text-align: center;">Product List</h2>
 
+  <div style="text-align: right; margin-bottom: 15px;">
+    <a href="{% url 'add_product' %}" style="padding: 8px 12px; background-color: #2ecc71; color: white; border-radius: 4px; text-decoration: none;">+ Add Product</a>
+  </div>
+
+  <ul style="list-style: none; padding: 0;">
+    {% for product in products %}
+      <li style="display: flex; align-items: center; gap: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; background-color: #fff;">
+        
+        <div style="flex-shrink: 0;">
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+        </div>
+
+        <div style="flex-grow: 1;">
+          <div style="display: flex; justify-content: space-between;">
+            <a href="{% url 'product_detail' product.id %}">
+            <strong>{{ product.name|slice:":60" }}{% if product.name|length > 60 %}...{% endif %}</strong></a>
+            <span>Rs. {{ product.price }}</span>
+          </div>
+          <div style="margin-top: 8px;">
+            <a href="{% url 'edit_product' product.id %}" style="margin-right: 15px; color: #2980b9;">Edit</a>
+            <a href="{% url 'delete_product' product.id %}" style="color: #c0392b;">Delete</a>
+          </div>
+        </div>
+
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div style="margin-top: 30px;">
+    <a href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

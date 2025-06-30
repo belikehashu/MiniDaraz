@@ -2,19 +2,53 @@
 {% block title %}All Orders{% endblock %}
 
 {% block content %}
-<h2>All Orders</h2>
-<ul>
-  {% for order in orders %}
-    <li>
-      <strong>Order #{{ order.id }}</strong> - {{ order.user.username }} - Rs. {{ order.total_price }} - Status: <strong>{{ order.get_status_display }}</strong>
-      <a href="{% url 'update_order_status' order.id %}">[Update]</a>
-      <ul>
-        {% for item in order.orderitem_set.all %}
-          <li>{{ item.product.name }} x{{ item.quantity }}</li>
-        {% endfor %}
-      </ul>
-    </li>
-  {% endfor %}
-</ul>
-<a href="{% url 'admin_dashboard' %}">← Back to Dashboard</a>
+<div style="max-width: 900px; margin: 40px auto; padding: 30px;">
+  <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">All Orders</h2>
+
+  <ul style="list-style: none; padding: 0;">
+    {% for order in orders %}
+      <li style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 25px; background-color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0; font-size: 18px;">
+            <a href="{% url 'order_detail' order.id %}" style="color: #2c3e50; text-decoration: none;">
+              Order #{{ order.id }}
+            </a>
+          </h3>
+          <a href="{% url 'update_order_status' order.id %}" style="font-size: 14px; background-color: #3498db; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none;">Update</a>
+        </div>
+
+        <p style="margin: 10px 0 5px; color: #555;">
+          <strong>User:</strong> {{ order.user.get_full_name }} &nbsp; | &nbsp;
+          <strong>Total:</strong> Rs. {{ order.total_price }} &nbsp; | &nbsp;
+          <strong>Status:</strong> 
+          <span style="color: {% if order.status == 'Cancelled' %}#c0392b{% elif order.status == 'Delivered' %}#27ae60{% else %}#f39c12{% endif %}; font-weight: bold;">
+            {{ order.get_status_display }}
+          </span>
+        </p>
+
+        <div style="margin-top: 12px;">
+          {% for item in order.orderitem_set.all %}
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
+                   style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc;">
+
+              <div style="line-height: 1.2;">
+                <a href="{% url 'product_detail' item.product.id %}">
+                <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 500px;">
+                  {{ item.product.name }}
+                </div></a>
+                <small style="color: #888;">Qty: {{ item.quantity }}</small>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="{% url 'admin_dashboard' %}" style="color: #3498db;">← Back to Dashboard</a>
+  </div>
+</div>
 {% endblock %}

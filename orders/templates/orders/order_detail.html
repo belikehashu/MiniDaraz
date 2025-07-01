@@ -1,15 +1,72 @@
-<hr>
+{% extends "base.html" %}
+{% block title %}Order Details{% endblock %}
 
-{% if order.status == "Pending" %}
-  <form method="post" action="{% url 'cancel_order' order.id %}">
-    {% csrf_token %}
-    <button type="submit" style="margin-right: 10px;">Cancel Order</button>
-  </form>
-{% elif order.status == "Cancelled" %}
-  <form method="post" action="{% url 'delete_order_history_entry' order.id %}">
-    {% csrf_token %}
-    <button type="submit">Remove from History</button>
-  </form>
-{% endif %}
+{% block content %}
+<div style="max-width: 800px; margin: auto; padding: 30px;">
+  <h2 style="text-align: center; margin-bottom: 20px;">Order #{{ order.id }}</h2>
 
-<a href="{% url 'order_history' %}">← Back to My Orders</a>
+  <h3 style="margin-bottom: 15px;">Items Ordered</h3>
+
+  {% for item in items %}
+    <div style="display: flex; align-items: center; background-color: #fafafa; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.04);">
+      <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
+           style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 15px; border: 1px solid #ccc;">
+      <div>
+        <a href="{% url 'product_detail' item.product.id %}">
+        <p style="margin: 0; font-weight: bold;" title="{{ item.product.name }}">
+          {{ item.product.name|slice:":80" }}{% if item.product.name|length > 80 %}...{% endif %}
+        </p></a>
+        <p style="margin: 4px 0 0; color: #555;">Quantity: {{ item.quantity }}</p>
+      </div>
+    </div>
+  {% endfor %}
+
+  <div style="margin-bottom: 20px;">
+    <p><strong>Status:</strong> {{ order.status|title }}</p>
+    <p><strong>Total Price:</strong> Rs. {{ order.total_price }}</p>
+    <p><strong>Date:</strong> {{ order.created_at }}</p>
+  </div>
+
+  <h3 style="margin-bottom: 10px;">User Details</h3>
+  <p><strong>Name:</strong> {{ order.user.first_name }} {{ order.user.last_name }}</p>
+  <p><strong>Email:</strong> {{ order.user.email }}</p>
+  {% if order.user.phone %}
+    <p><strong>Phone:</strong> {{ order.user.phone }}</p>
+  {% endif %}
+
+  <h3 style="margin-bottom: 10px;">Shipping Address</h3>
+  <p>{{ order.shipping_address }}</p>
+
+  {% if request.user == order.user %}
+    {% if order.status == "Pending" %}
+      <form method="post" action="{% url 'cancel_order' order.id %}" style="text-align: center; margin-top: 25px;">
+        {% csrf_token %}
+        <button type="submit"
+                style="padding: 10px 20px; background-color: #e74c3c; color: white; border: none; border-radius: 6px; font-size: 15px;">
+          Cancel Order
+        </button>
+      </form>
+    {% elif order.status == "Cancelled" %}
+      <form method="post" action="{% url 'delete_order_history' order.id %}" style="text-align: center; margin-top: 25px;">
+        {% csrf_token %}
+        <button type="submit"
+                style="padding: 10px 20px; background-color: #c0392b; color: white; border: none; border-radius: 6px; font-size: 15px;">
+          Remove from History
+        </button>
+      </form>
+    {% endif %}
+  {% elif request.user.is_superuser %}
+    <form method="post" action="{% url 'update_order_status' order.id %}" style="text-align: center; margin-top: 25px;">
+      {% csrf_token %}
+      <button type="submit"
+              style="padding: 10px 20px; background-color: #2980b9; color: white; border: none; border-radius: 6px; font-size: 15px;">
+        Update Status
+      </button>
+    </form>
+  {% endif %}
+
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="{% url 'order_history' %}" style="color: #3498db;">← Back to My Orders</a>
+  </div>
+</div>
+{% endblock %}

@@ -2,10 +2,10 @@
 {% block title %}All Products{% endblock %}
 
 {% block content %}
-<h2>All Products</h2>
-<form method="get" style="margin-bottom:20px;">
-  <input type="text" name="q" placeholder="Search product..." value="{{ search_query|default_if_none:'' }}">
-  <select name="category">
+<form method="get" style="margin-bottom: 30px; text-align: center;">
+  <input type="text" name="q" placeholder="Search product..." value="{{ search_query|default_if_none:'' }}"
+         style="padding: 8px 12px; width: 220px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;">
+  <select name="category" style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;">
     <option value="all">All Categories</option>
     {% for cat in categories %}
       <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
@@ -13,26 +13,58 @@
       </option>
     {% endfor %}
   </select>
-  <button type="submit">Filter</button>
+  <button type="submit"
+          style="padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px;">
+    Filter
+  </button>
 </form>
-{% for product in products %}
-  <div style="border:1px solid black; margin:5px; padding:5px;">
-    <table>
-      <tr>
-        <td>
-          <img src="{{ product.image.url }}" alt="{{ product.name }}" width="150">
-        </td>
-        <td>
-          <h3><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></h3>
-          <p>{{ product.description|slice:":100" }}</p>
-          <p>Rs. {{ product.price }}</p>
-          <a href="{% url 'buy_now' product.id %}"><button>Buy</button></a>
-          <a href="{% url 'add_to_cart' product.id %}"><button>Add to Cart</button></a>
-        </td>
-      </tr>
-    </table>
-  </div>
-{% empty %}
-  <p>No products found.</p>
-{% endfor %}
+
+<div style="
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+">
+  {% for product in products %}
+    <div style="background-color: #fff; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: transform 0.2s; display: flex; flex-direction: column;">
+      
+      <a href="{% url 'product_detail' product.id %}" style="text-align: center;">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+             style="width: 100%; height: 200px; object-fit: cover;">
+      </a>
+
+      <div style="padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h3 style="margin: 0 0 10px; font-size: 17px; font-weight: bold; height: 60px; overflow: hidden;">
+            <a href="{% url 'product_detail' product.id %}" style="color: #2c3e50; text-decoration: none;">
+              {{ product.name|slice:":70" }}{% if product.name|length > 70 %}...{% endif %}
+            </a>
+          </h3>
+
+          <p style="color: #555; font-size: 13px; height: 50px; overflow: hidden; margin-bottom: 10px;">
+            {{ product.description|slice:":100" }}
+          </p>
+
+          <div style="font-size: 14px; color: #221f1f; font-weight: bold; margin-bottom: 12px;">
+          <h3>  Rs. {{ product.price }}</h3>
+          </div>
+        </div>
+
+        <div style="margin-top: auto; display: flex; gap: 10px;">
+          <a href="{% url 'buy_now' product.id %}" style="flex: 1;">
+            <button style="width: 100%; padding: 8px; background-color: #2ecc71; color: white; border: none; border-radius: 5px; font-size: 14px;">
+              Buy
+            </button>
+          </a>
+          <a href="{% url 'add_to_cart' product.id %}" style="flex: 1;">
+            <button style="width: 100%; padding: 8px; background-color: #f39c12; color: white; border: none; border-radius: 5px; font-size: 14px;">
+              Cart
+            </button>
+          </a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p style="text-align: center; grid-column: 1 / -1;">No products found.</p>
+  {% endfor %}
+</div>
 {% endblock %}

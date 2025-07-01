@@ -12,5 +12,6 @@ class Product(models.Model):
     price = models.FloatField()
     image = models.ImageField(upload_to='products/')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    stock = models.PositiveIntegerField(default=0)
     def __str__(self):
         return self.name

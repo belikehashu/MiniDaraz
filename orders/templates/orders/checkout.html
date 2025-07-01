@@ -1,21 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Checkout{% endblock %}
-
 {% block content %}
-<h2>Checkout</h2>
-{% if items %}
-  <ul>
-    {% for item in items %}
-      <li>{{ item.product.name }} (x{{ item.quantity }}) - Rs. {{ item.product.price }}</li>
-    {% endfor %}
-  </ul>
-  <p><strong>Total: Rs. {{ total }}</strong></p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Place Order</button>
-  </form>
-{% else %}
-  <p>Your cart is empty.</p>
-{% endif %}
-<a href="{% url 'cart_view' %}">← Back to Cart</a>
+<div style="max-width: 700px; margin: auto; padding: 30px;">
+  <h2 style="text-align: center; margin-bottom: 30px;">Checkout</h2>
+
+  {% if items %}
+    <ul style="padding-left: 20px;">
+      {% for item in items %}
+        <li>{{ item.product.name }} (x{{ item.quantity }}) - Rs. {{ item.product.price }}</li>
+      {% endfor %}
+    </ul>
+
+    <p style="margin-top: 20px; font-weight: bold;">Total: Rs. {{ total }}</p>
+
+    <form method="post" style="margin-top: 20px; text-align: center;">
+      {% csrf_token %}
+      <button type="submit" style="padding: 10px 20px; background-color: #27ae60; color: white; border: none; border-radius: 5px;">Place Order</button>
+    </form>
+  {% else %}
+    <p style="text-align: center;">Your cart is empty.</p>
+  {% endif %}
+
+  <div style="text-align: center; margin-top: 20px;">
+    <a href="{% url 'cart_view' %}" style="color: #555;">← Back to Cart</a>
+  </div>
+</div>
 {% endblock %}

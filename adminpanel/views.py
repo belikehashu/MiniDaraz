@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
-from products.models import Product, Category
 from orders.models import Order
 from django import forms
+from products.models import Product, Category
+from products.forms import ProductForm, CategoryForm
 from django.contrib import messages
-from products.forms import ProductForm
+
 
 def is_superadmin(user):
     return user.is_superuser
@@ -69,3 +70,28 @@ def update_order_status(request, order_id):
     else:
         form = OrderStatusForm(instance=order)
     return render(request, 'adminpanel/update_order_status.html', {'form': form, 'order': order})
+
+@user_passes_test(is_superadmin)
+def category_list(request):
+    categories = Category.objects.all()
+    return render(request, 'adminpanel/categories.html', {'categories': categories})
+
+# Add or Edit Category
+@user_passes_test(is_superadmin)
+def add_edit_category(request, category_id=None):
+    category = get_object_or_404(Category, id=category_id) if category_id else None
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_categories')
+    else:
+        form = CategoryForm(instance=category)
+    return render(request, 'adminpanel/add_edit_category.html', {'form': form})
+
+# Delete Category (and its related products)
+@user_passes_test(is_superadmin)
+def delete_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    category.delete()
+    return redirect('admin_categories')

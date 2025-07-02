@@ -1,10 +1,7 @@
-This is a major update which includes frontend enhancement and routings which are following:
-- Product Stock added
-- User can choose address in checkout
-- Big improvements in adminpanel
-- Product images added in orders
-- Product images added in cart and checkout
-- Product images added in adminpanel's edit/add pages
-- User can route in in whole project easily
-
-  (update v6>
+This is a major update which includes payment options and some other improvements which are following:
+- Now user can select payment options
+- Admin can manage categories
+- Merged Buy Now and Checkout pages into One
+- Merged Edit and Add product pages into One
+- Improved backend flow
+  (update v7)

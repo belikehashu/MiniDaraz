@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Manage Categories{% endblock %}
+{% block content %}
+
+<div style="max-width: 800px; margin: auto; padding: 30px; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2 style="margin: 0;">Manage Categories</h2>
+    <a href="{% url 'add_category' %}" style="padding: 8px 14px; background-color: #2ecc71; color: white; text-decoration: none; border-radius: 6px;">+ Add Category</a>
+  </div>
+
+  {% if categories %}
+    <ul style="list-style: none; padding: 0;">
+      {% for category in categories %}
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.03);">
+          <div>
+            <strong style="font-size: 16px;">{{ category.name }}</strong><br>
+            <small style="color: #666;">{{ category.description }}</small>
+          </div>
+          <div>
+            <a href="{% url 'edit_category' category.id %}" style="margin-right: 15px; color: #2980b9; font-weight: 500;">Edit</a>
+            <a href="{% url 'delete_category' category.id %}" style="color: #c0392b; font-weight: 500;">Delete</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p style="text-align: center; color: #888;">No categories found.</p>
+  {% endif %}
+
+  <div style="text-align: center; margin-top: 25px;">
+    <a href="{% url 'admin_dashboard' %}" style="color: #3498db;">← Back to Dashboard</a>
+  </div>
+</div>
+
+{% endblock %}

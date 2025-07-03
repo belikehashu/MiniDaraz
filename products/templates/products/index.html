@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}All Products{% endblock %}
-
 {% block content %}
+
 <form method="get" style="margin-bottom: 30px; text-align: center;">
   <input type="text" name="q" placeholder="Search product..." value="{{ search_query|default_if_none:'' }}"
          style="padding: 8px 12px; width: 220px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;">
@@ -13,6 +13,15 @@
       </option>
     {% endfor %}
   </select>
+
+  <select name="sort" style="padding: 8px 12px; border-radius: 6px; margin-left: 10px;">
+    <option value="">Sort</option>
+    <option value="price_asc" {% if request.GET.sort == "price_asc" %}selected{% endif %}>Price: Low to High</option>
+    <option value="price_desc" {% if request.GET.sort == "price_desc" %}selected{% endif %}>Price: High to Low</option>
+    <option value="name_az" {% if request.GET.sort == "name_az" %}selected{% endif %}>Name: A-Z</option>
+    <option value="name_za" {% if request.GET.sort == "name_za" %}selected{% endif %}>Name: Z-A</option>
+  </select>
+
   <button type="submit"
           style="padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px;">
     Filter
@@ -24,7 +33,7 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 25px;
 ">
-  {% for product in products %}
+  {% for product in page_obj %}
     <div style="background-color: #fff; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: transform 0.2s; display: flex; flex-direction: column;">
       
       <a href="{% url 'product_detail' product.id %}" style="text-align: center;">
@@ -67,4 +76,17 @@
     <p style="text-align: center; grid-column: 1 / -1;">No products found.</p>
   {% endfor %}
 </div>
+
+<div style="margin-top: 30px; text-align: center;">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="margin-right: 10px;">← Previous</a>
+  {% endif %}
+
+  Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="margin-left: 10px;">Next →</a>
+  {% endif %}
+</div>
+
 {% endblock %}

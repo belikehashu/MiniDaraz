@@ -39,20 +39,17 @@ def unified_checkout_view(request, product_id=None):
     total_price = 0
     is_buy_now = bool(product_id)
 
-    # For Buy Now, wrap product in fake item class to mimic cart item
     class FakeItem:
         def __init__(self, product, quantity):
             self.product = product
             self.quantity = quantity
 
-    # BUY NOW FLOW
     if is_buy_now:
         product = get_object_or_404(Product, id=product_id)
         quantity = int(request.POST.get(f'quantity_{product.id}', 1)) if request.method == 'POST' else 1
         items = [FakeItem(product, quantity)]
         total_price = product.price * quantity
 
-    # CART FLOW
     else:
         cart = Cart.objects.filter(user=user).first()
         selected_ids = request.session.get('selected_cart_items', [])
@@ -68,7 +65,6 @@ def unified_checkout_view(request, product_id=None):
             address_id = form.cleaned_data['address']
             address = get_object_or_404(Address, id=address_id)
 
-            # STOCK CHECK
             for item in items:
                 product = item.product
                 qty = int(request.POST.get(f'quantity_{product.id}', item.quantity))
@@ -76,13 +72,12 @@ def unified_checkout_view(request, product_id=None):
                     messages.error(request, f"Not enough stock for {product.name}.")
                     return redirect('cart_view' if not is_buy_now else 'buy_now', product_id=product_id)
 
-            # CREATE ORDER
             order = Order.objects.create(
                 user=user,
                 total_price=total_price,
                 shipping_address=str(address),
                 payment_method=payment_method,
-                is_paid=(payment_method == 'cod')  # Mark paid only if COD
+                is_paid=(payment_method == 'cod')
             )
 
             for item in items:
@@ -92,12 +87,10 @@ def unified_checkout_view(request, product_id=None):
                 product.stock -= qty
                 product.save()
 
-            # Clean cart if from cart
             if not is_buy_now:
                 cart_items.delete()
                 request.session.pop('selected_cart_items', None)
 
-            # Redirect Based on Payment Method
             if payment_method == 'stripe':
                 return redirect('start_payment', order_id=order.id)
             elif payment_method == 'cod':
@@ -141,7 +134,6 @@ def order_detail_view(request, order_id):
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
-    # Only order owner can cancel
     if request.user != order.user and not request.user.is_superuser:
         return HttpResponseForbidden("You cannot cancel this order.")
 
@@ -208,7 +200,7 @@ def payment_success_view(request, order_id):
 @login_required
 def payment_cancel_view(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    order.delete()  # Optional: cancel unpaid order
+    order.delete()
     messages.error(request, "Payment cancelled.")
     return redirect('cart_view')
 

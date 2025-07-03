@@ -5,11 +5,15 @@
   <h2 style="text-align:center;">Login</h2>
   <form method="post">
     {% csrf_token %}
-    <label>Email:</label>
-    <input type="email" name="email" required class="form-control" style="width: 100%; padding: 8px; margin-bottom: 15px;">
-
-    <label>Password:</label>
-    <input type="password" name="password" required class="form-control" style="width: 100%; padding: 8px; margin-bottom: 20px;">
+    {% for field in form %}
+      <div style="margin-bottom: 15px;">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div style="color: red; font-size: 13px;">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
 
     <button type="submit" style="width:100%; padding: 10px; background-color: #3498db; color:white; border:none; border-radius: 5px;">Login</button>
   </form>

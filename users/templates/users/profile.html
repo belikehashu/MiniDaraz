@@ -23,7 +23,7 @@
       </div>
     {% endfor %}
 
-    <button type="submit"
+    <button type="submit" name="update_profile"
             style="padding: 10px 20px; background-color: #3498db; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;">
       Update Profile
     </button>
@@ -51,7 +51,7 @@
       </div>
     {% endfor %}
 
-    <button type="submit"
+    <button type="submit" name="add_address"
             style="padding: 10px 20px; background-color: #2ecc71; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;">
       Add Address
     </button>
@@ -64,7 +64,10 @@
     <ul style="list-style: none; padding-left: 0;">
       {% for addr in addresses %}
         <li style="margin-bottom: 10px; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; background-color: #f9f9f9;">
-          {{ addr.street }}, {{ addr.city }}, {{ addr.zip_code }}, {{ addr.country }}
+          {{ addr.street }}, {{ addr.city }}, {{ addr.zip_code }}, {{ addr.country }}  
+          <a href="{% url 'edit_address' addr.id %}" style="margin-left: 10px;">Edit</a>
+          |
+          <a href="{% url 'delete_address' addr.id %}" style="color:red; margin-left: 5px;">Delete</a>
         </li>
       {% endfor %}
     </ul>

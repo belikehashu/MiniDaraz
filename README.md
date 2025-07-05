@@ -1,7 +1,11 @@
-This is a major update which includes payment options and some other improvements which are following:
-- Now user can select payment options
-- Admin can manage categories
-- Merged Buy Now and Checkout pages into One
-- Merged Edit and Add product pages into One
-- Improved backend flow
-  (update v7)
+This update includes:
+- Pagination
+- User can review the product
+- Multiple product images
+- Out of Stock Products will not be listed
+- Now Users can edit and delete their saved Addresses
+- Better security than before
+- Other performance improvements
+- Product sorting added
+
+(update v8)

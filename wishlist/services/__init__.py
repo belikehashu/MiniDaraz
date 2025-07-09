@@ -1,0 +1,2 @@
+from .wishlist_service import add_item_to_wishlist
+from .wishlist_service import remove_item_from_wishlist

@@ -6,12 +6,13 @@
 
   {% if orders %}
     {% for order in orders %}
-      <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); background-color: #fff;">
+      <div class="order-card" data-order-id="{{ order.id }}"
+           style="border: 1px solid #ccc; padding: 20px; margin-bottom: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); background-color: #fff;">
         <h3 style="margin-bottom: 10px;">
           <a href="{% url 'order_detail' order.id %}" style="color: #2c3e50; text-decoration: none;">Order No. {{ order.id }}</a>
         </h3>
         <p><strong>Total:</strong> Rs. {{ order.total_price }}</p>
-        <p><strong>Status:</strong> {{ order.status|title }}</p>
+        <p class="order-status"><strong>Status:</strong> {{ order.status|title }}</p>
 
         <div style="margin-top: 15px;">
           {% for item in order.orderitem_set.all %}
@@ -20,29 +21,34 @@
                    style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 15px;">
               <div>
                 <a href="{% url 'product_detail' item.product.id %}">
-                <p style="margin: 0; font-weight: bold;" title="{{ item.product.name }}">
-                  {{ item.product.name|slice:":80" }}{% if item.product.name|length > 80 %}...{% endif %}
-                </p></a>
+                  <p style="margin: 0; font-weight: bold;" title="{{ item.product.name }}">
+                    {{ item.product.name|slice:":80" }}{% if item.product.name|length > 80 %}...{% endif %}
+                  </p>
+                </a>
                 <p style="margin: 5px 0 0; color: #555;">Qty: {{ item.quantity }}</p>
               </div>
             </div>
           {% endfor %}
         </div>
 
-        {% if order.status|lower == "pending" %}
-          <form method="post" action="{% url 'cancel_order' order.id %}" style="margin-top: 20px;">
-            {% csrf_token %}
-            <button type="submit" style="padding: 8px 16px; background-color: #e67e22; color: white; border: none; border-radius: 5px;">Cancel Order</button>
-          </form>
-        {% elif order.status|lower == "cancelled" %}
-          <p style="margin-top: 10px;"><em>Order was cancelled.</em></p>
-          <form method="post" action="{% url 'delete_order_history' order.id %}" style="margin-top: 10px;">
-            {% csrf_token %}
-            <button type="submit" style="padding: 8px 16px; background-color: #c0392b; color: white; border: none; border-radius: 5px;">Remove from History</button>
-          </form>
-        {% else %}
-          <p style="margin-top: 10px;"><em>Order cannot be cancelled ({{ order.status|title }}).</em></p>
-        {% endif %}
+        <div class="order-actions" style="margin-top: 15px;">
+          {% if order.status|lower == "pending" %}
+            <button class="cancel-order-btn"
+                    data-order-id="{{ order.id }}"
+                    style="padding: 8px 16px; background-color: #e67e22; color: white; border: none; border-radius: 5px;">
+              Cancel Order
+            </button>
+          {% elif order.status|lower == "cancelled" %}
+            <p><em>Order was cancelled.</em></p>
+            <button class="delete-order-btn"
+                    data-order-id="{{ order.id }}"
+                    style="padding: 8px 16px; background-color: #c0392b; color: white; border: none; border-radius: 5px;">
+              Remove from History
+            </button>
+          {% else %}
+            <p><em>Order cannot be cancelled ({{ order.status|title }}).</em></p>
+          {% endif %}
+        </div>
       </div>
     {% endfor %}
   {% else %}
@@ -53,4 +59,57 @@
     <a href="{% url 'index' %}" style="color: #3498db;">← Back to Home</a>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("cancel-order-btn")) {
+      const orderId = e.target.dataset.orderId;
+      fetch(`/orders/cancel/${orderId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const card = e.target.closest(".order-card");
+          card.querySelector(".order-status").innerHTML = `<strong>Status:</strong> Cancelled`;
+          card.querySelector(".order-actions").innerHTML = `
+            <p><em>Order was cancelled.</em></p>
+            <button class="delete-order-btn"
+                    data-order-id="${orderId}"
+                    style="padding: 8px 16px; background-color: #c0392b; color: white; border: none; border-radius: 5px;">
+              Remove from History
+            </button>`;
+        } else {
+          alert(data.message || "Failed to cancel order.");
+        }
+      });
+    }
+
+    if (e.target.classList.contains("delete-order-btn")) {
+      const orderId = e.target.dataset.orderId;
+      fetch(`/orders/delete-history/${orderId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const card = e.target.closest(".order-card");
+          if (card) card.remove();
+        } else {
+          alert(data.message || "Failed to remove order.");
+        }
+      });
+    }
+  });
+});
+</script>
 {% endblock %}

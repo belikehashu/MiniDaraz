@@ -1,0 +1,33 @@
+<div id="review-{{ review.id }}" style="margin-bottom:20px;padding:15px;border:1px solid #ccc;border-radius:6px;background:white;">
+  <strong>{{ review.user.first_name }}</strong> rated:
+  <span>
+    {% for i in "12345"|make_list %}
+      {% if forloop.counter <= review.rating %}
+        <span style="color:#f1c40f;">&#9733;</span>
+      {% else %}
+        <span style="color:#ccc;">&#9733;</span>
+      {% endif %}
+    {% endfor %}
+  </span>
+  <p style="margin-top:5px;">{{ review.comment }}</p>
+  <small style="color:#888;">{{ review.created_at|date:"F j, Y, g:i a" }}</small>
+
+  {% if user == review.user %}
+    <div style="margin-top:5px;">
+      <a href="#" class="edit-review-link" data-review-id="{{ review.id }}" style="color:#2980b9;">Edit</a> |
+      <a href="#" class="delete-review-link" data-review-id="{{ review.id }}" style="color:#c0392b;">Delete</a>
+    </div>
+
+    <div id="delete-confirm-{{ review.id }}" class="delete-confirm-box" style="margin-top:10px; display:none;">
+      <span>Are you sure?</span>
+      <button class="confirm-delete-btn" data-review-id="{{ review.id }}"
+              style="margin-left:10px;padding:3px 8px;background-color:#c0392b;color:white;border:none;border-radius:4px;">
+        Yes
+      </button>
+      <button class="cancel-delete-btn" data-review-id="{{ review.id }}"
+              style="margin-left:5px;padding:3px 8px;background-color:#ccc;color:#333;border:none;border-radius:4px;">
+        Cancel
+      </button>
+    </div>
+  {% endif %}
+</div>

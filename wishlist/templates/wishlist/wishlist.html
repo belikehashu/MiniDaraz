@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center; margin-bottom: 30px;">My Wishlist</h2>
+
+{% if wishlist_items %}
+  <ul style="list-style: none; padding: 0;" id="wishlist-list">
+    {% for item in wishlist_items %}
+      <li id="wishlist-item-{{ item.id }}" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #fff;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+          <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
+
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 8px;">{{ item.product.name }}</h3>
+            <p style="margin: 0 0 6px;">Price: Rs. {{ item.product.price }}</p>
+            <p style="margin: 0 0 10px;">
+              Stock:
+              {% if item.product.stock > 0 %}
+                <span style="color: green;">{{ item.product.stock }} available</span>
+              {% else %}
+                <span style="color: red;">Out of Stock</span>
+              {% endif %}
+            </p>
+
+            <div style="display: flex; gap: 10px;">
+              <button class="ajax-cart-btn"
+                      data-product-id="{{ item.product.id }}"
+                      style="background-color: #f39c12; color: white; padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer;">
+                Add to Cart
+              </button>
+
+              <button class="ajax-remove-wishlist"
+                      data-item-id="{{ item.id }}"
+                      style="background-color: #e74c3c; color: white; padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer;">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p style="text-align: center; color: #666;">Your wishlist is empty.</p>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function showMessage(msg, type = "success") {
+      let msgList = document.querySelector("ul.messages");
+      if (!msgList) {
+        msgList = document.createElement("ul");
+        msgList.className = "messages";
+        document.querySelector("main").prepend(msgList);
+      }
+      const li = document.createElement("li");
+      li.textContent = msg;
+      li.style.color = (type === "error") ? "red" : "green";
+      li.style.fontWeight = "bold";
+      msgList.appendChild(li);
+      setTimeout(() => li.remove(), 4000);
+    }
+
+    document.querySelectorAll(".ajax-remove-wishlist").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const itemId = this.dataset.itemId;
+        fetch(`/wishlist/remove/${itemId}/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById("wishlist-count").textContent = data.wishlist_count;
+            const itemEl = document.getElementById(`wishlist-item-${itemId}`);
+            if (itemEl) itemEl.remove();
+            showMessage(data.message || "Removed from wishlist.");
+          } else {
+            showMessage(data.message || "Error removing from wishlist.", "error");
+          }
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}

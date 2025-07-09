@@ -10,7 +10,10 @@
     {% csrf_token %}
 
     {% for item in items %}
-      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 0 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between;">
+      <div class="cart-item"
+           data-item-id="{{ item.id }}"
+           data-price="{{ item.product.price }}"
+           style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 0 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between;">
         
         <div style="display: flex; align-items: center;">
           <input type="checkbox" class="checkout-checkbox" value="{{ item.id }}" style="margin-right: 10px;">
@@ -24,7 +27,8 @@
             </strong>
             </a><br>
             <span style="color: #555;">Rs. {{ item.product.price }}</span><br>
-            <small style="color: gray;">Available Stock: {{ item.product.stock }}</small>
+            <small style="color: gray;">Available Stock: {{ item.product.stock }}</small><br>
+            <span>Subtotal: Rs. <span class="item-subtotal">{{ item.product.price|floatformat:0 }}</span></span>
           </div>
         </div>
 
@@ -50,7 +54,7 @@
   </form>
 
   <p style="text-align: center; margin-top: 20px; font-size: 18px;">
-    <strong>Total (All Items): Rs. {{ total }}</strong>
+    <strong>Total (Selected Items): Rs. <span id="selected-total">0</span></strong>
   </p>
 
   {% else %}
@@ -63,6 +67,23 @@
 </div>
 
 <script>
+  function updateSubtotalsAndTotal() {
+    let total = 0;
+    document.querySelectorAll('.cart-item').forEach(item => {
+      const price = parseFloat(item.dataset.price);
+      const input = item.querySelector('.qty-input');
+      const qty = parseInt(input.value);
+      const subtotal = price * qty;
+      item.querySelector('.item-subtotal').textContent = subtotal.toFixed(0);
+
+      const checkbox = item.querySelector('.checkout-checkbox');
+      if (checkbox.checked) {
+        total += subtotal;
+      }
+    });
+    document.getElementById('selected-total').textContent = total.toFixed(0);
+  }
+
   document.querySelectorAll('.qty-input').forEach(input => {
     input.addEventListener('change', function () {
       const itemId = this.dataset.id;
@@ -76,10 +97,14 @@
         body: `quantity=${quantity}`
       }).then(res => {
         if (res.ok) {
-          location.reload();
+          updateSubtotalsAndTotal();
         }
       });
     });
+  });
+
+  document.querySelectorAll('.checkout-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateSubtotalsAndTotal);
   });
 
   document.getElementById('checkout-form').addEventListener('submit', function (e) {
@@ -89,5 +114,8 @@
     });
     document.getElementById('selected-items-field').value = selected.join(',');
   });
+
+  // ✅ Initial subtotal and total calculation
+  updateSubtotalsAndTotal();
 </script>
 {% endblock %}

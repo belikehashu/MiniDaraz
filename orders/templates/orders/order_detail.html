@@ -24,13 +24,19 @@
     <p><strong>Status:</strong> {{ order.status|title }}</p>
     <p><strong>Total Price:</strong> Rs. {{ order.total_price }}</p>
     <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+    
     <p><strong>Payment Status:</strong>
-      {% if order.is_paid %}
-        ✅ Paid
-      {% else %}
-        ❌ Not Paid
+      {% if order.payment_method == 'cod' %}
+        <span style="color: orange; font-weight: bold;">Pending</span>
+      {% elif order.payment_method == 'stripe' %}
+        {% if order.is_paid %}
+          <span style="color: green; font-weight: bold;">Paid</span>
+        {% else %}
+          <span style="color: red; font-weight: bold;">Not Paid</span>
+        {% endif %}
       {% endif %}
     </p>
+
     <p><strong>Created:</strong> {{ order.created_at }}</p>
   </div>
 

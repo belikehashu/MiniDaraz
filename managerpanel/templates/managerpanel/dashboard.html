@@ -1,0 +1,32 @@
+{% extends "shared/base_panel.html" %}
+{% block title %}Manager Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-box">
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <img src="https://ui-avatars.com/api/?name={{ manager.user.first_name }}+{{ manager.user.last_name }}&background=2980b9&color=fff&size=128"
+         class="profile-avatar" alt="Manager Avatar">
+    <div class="profile-info">
+      <h2>{{ manager.user.first_name }} {{ manager.user.last_name }}</h2>
+      <p>{{ manager.user.email }}</p>
+      {% if manager.phone %}<p>{{ manager.phone }}</p>{% endif %}
+    </div>
+  </div>
+
+  <!-- Assigned Branches -->
+  <div class="section-block">
+    <h4>Assigned Branches</h4>
+    <ul class="list-group mb-4">
+      {% for branch in branches %}
+        <li class="list-group-item">
+          <a href="{% url 'manager:branch_detail' branch.id %}">{{ branch.name }}</a>
+        </li>
+      {% empty %}
+        <li class="list-group-item">No branches assigned.</li>
+      {% endfor %}
+
+    </ul>
+  </div>
+</div>
+{% endblock %}

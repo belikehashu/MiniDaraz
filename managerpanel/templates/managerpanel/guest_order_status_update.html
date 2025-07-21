@@ -1,0 +1,27 @@
+{% extends "shared/base_panel.html" %}
+{% block title %}Update Guest Order #{{ order.id }} Status{% endblock %}
+
+{% block content %}
+<div class="section-block">
+  <div class="dashboard-box" style="max-width: 550px; margin: auto;">
+    <h3 class="mb-4">Update Guest Order Status</h3>
+
+    <form method="post" class="product-form">
+      {% csrf_token %}
+
+      <div class="form-group mb-3">
+        <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+        {{ form.status }}
+        {% if form.status.errors %}
+          <div class="form-error mt-1">{{ form.status.errors.0 }}</div>
+        {% endif %}
+      </div><br>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-equal">Update</button>
+        <a href="{% url 'manager:order_list' %}" class="btn btn-secondary btn-equal">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

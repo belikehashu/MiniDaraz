@@ -1,0 +1,31 @@
+{% extends "shared/base_panel.html" %}
+{% block title %}{% if form.instance.pk %}Update{% else %}Add{% endif %} Category{% endblock %}
+
+{% block content %}
+<div class="dashboard-box">
+  <h2 class="mb-4">{% if form.instance.pk %}Update{% else %}Add{% endif %} Category</h2>
+
+  <form method="post" class="category-form">
+    {% csrf_token %}
+    <input type="hidden" name="branch" value="{{ branch_id }}">
+    {% for field in form %}
+      <div class="form-field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+          <small class="form-help">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+          <div class="form-error">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <div class="text-end mt-4">
+      <button type="submit" class="btn btn-primary">
+        {% if form.instance.pk %}Update{% else %}Add{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

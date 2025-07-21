@@ -10,11 +10,10 @@ urlpatterns = [
     path('products/', include('products.urls')),
     path('cart/', include('cart.urls')),
     path('orders/', include('orders.urls')),
-    path('adminpanel/', include('adminpanel.urls')),
     path('wishlist/', include('wishlist.urls')),
     path('notifications/', include('notifications.urls')),
-
-
+    path('brandpanel/', include('brandpanel.urls')),
+    path('managerpanel/', include('managerpanel.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

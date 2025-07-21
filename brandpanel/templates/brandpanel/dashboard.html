@@ -1,0 +1,87 @@
+{% extends "shared/base_panel.html" %}
+{% block title %}Owner Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-box">
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <img src="https://ui-avatars.com/api/?name={{ owner.user.first_name }}+{{ owner.user.last_name }}&background=2980b9&color=fff&size=128"
+         class="profile-avatar" alt="Owner Avatar">
+    <div class="profile-info">
+      <h2>{{ owner.user.first_name }} {{ owner.user.last_name }}</h2>
+      <p>{{ owner.user.email }}</p>
+      {% if owner.phone %}<p>{{ owner.phone }}</p>{% endif %}
+    </div>
+  </div>
+
+  <!-- Brand Info -->
+  <div class="section-block">
+    <h3>Brand: {{ brand.name }}</h3>
+  </div>
+
+  <!-- Branches with Managers (Structured Layout) -->
+  <div class="section-block">
+    <h4>Branches</h4>
+    <a href="{% url 'brand:branch_create' %}" class="btn btn-success mb-3">+ Add Branch</a>
+
+    {% for branch in branches %}
+      <div class="card mb-3 p-3 d-flex flex-row justify-content-between align-items-start">
+        
+        <!-- Left: Branch name & managers -->
+        <div class="w-75">
+          <h5 class="mb-3">
+            <a href="{% url 'manager:branch_detail' branch.id %}" style="text-decoration: none; color: #2c3e50;">
+              {{ branch.name }}
+            </a>
+          </h5>
+
+
+          {% with branch.managers.all as branch_managers %}
+            {% if branch_managers %}
+              <ul class="list-group">
+                {% for manager in branch_managers %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ manager.user.first_name }} {{ manager.user.last_name }} ({{ manager.user.email }})</span>
+                    <form method="post" action="{% url 'brand:remove_manager' branch.id manager.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                    </form>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted">No managers assigned.</p>
+            {% endif %}
+          {% endwith %}
+        </div>
+
+        <!-- Right: Action Buttons -->
+        <div class="text-end">
+          <a href="{% url 'brand:branch_update' branch.id %}" class="btn btn-info btn-sm mb-2 w-100">Edit</a>
+          <a href="{% url 'brand:branch_delete' branch.id %}" class="btn btn-danger btn-sm mb-2 w-100">Delete</a>
+          <a href="{% url 'brand:assign_manager' branch.id %}" class="btn btn-secondary btn-sm w-100">Assign Manager</a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="alert alert-info">No branches found.</div>
+    {% endfor %}
+  </div>
+
+
+  <!-- Managers -->
+  <div class="section-block">
+    <h4>Managers</h4>
+    <a href="{% url 'brand:manager_create' %}" class="btn btn-primary mb-3">+ Add Manager</a>
+    <ul class="list-group">
+      {% for manager in managers %}
+        <li class="list-group-item">
+          {{ manager.user.first_name }} {{ manager.user.last_name }} ({{ manager.user.email }})
+        </li>
+      {% empty %}
+        <li class="list-group-item">No managers found.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</div>
+{% endblock %}

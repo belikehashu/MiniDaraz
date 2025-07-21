@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Register as Owner{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; padding: 35px 30px; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #eee;">
+
+  <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">Register as Brand Owner</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    
+    {% for field in form %}
+      <div style="margin-bottom: 18px;">
+        <label for="{{ field.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 6px;">
+          {{ field.label }}
+        </label>
+        {{ field }}
+        {% if field.errors %}
+          <div style="color: #e74c3c; font-size: 13px; margin-top: 4px;">
+            {{ field.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit"
+            style="width: 100%; padding: 12px; background-color: #27ae60; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 16px;">
+      Register
+    </button>
+  </form>
+
+  <div style="text-align: center; margin-top: 25px;">
+    <span style="color: #555;">Already have a seller account?</span>
+    <a href="{% url 'brand:seller_login' %}" style="color: #2980b9; text-decoration: none; font-weight: 500;">Login here</a>
+  </div>
+</div>
+
+<style>
+  input, select {
+    width: 100% !important;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    box-sizing: border-box;
+  }
+</style>
+{% endblock %}

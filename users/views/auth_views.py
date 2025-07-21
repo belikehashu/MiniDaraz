@@ -1,8 +1,13 @@
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import redirect, render
+from brandpanel.models.owner import Owner
+from cart.services.get_user_cart import get_user_cart
+from managerpanel.models.manager import Manager
 from users.forms import RegisterForm
+from products.models.product import Product
+from cart.models.cart_item import CartItem
 
 def register_view(request):
     if request.method == 'POST':
@@ -17,24 +22,58 @@ def register_view(request):
             messages.error(request, "Please correct the errors below.")
     else:
         form = RegisterForm()
-    
+
     return render(request, 'users/register.html', {'form': form})
+
 
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+
+            if user.is_superuser:
+                messages.error(request, "Superuser login not allowed.")
+                return redirect('login')
+
             login(request, user)
-            next_url = request.GET.get('next') or 'profile'
-            messages.success(request, "Login successful!")
-            return redirect(next_url)
-        else:
-            messages.error(request, "Invalid email or password.")
+
+            # ✅ Get user's cart from DB
+            user_cart = get_user_cart(user=user, session=request.session)
+
+            # ✅ Merge guest cart from SESSION
+            session_guest_cart = request.session.get("guest_cart", [])
+
+            for entry in session_guest_cart:
+                product_id = entry["product_id"]
+                quantity = entry["quantity"]
+                try:
+                    product = Product.objects.get(id=product_id)
+                except Product.DoesNotExist:
+                    continue
+
+                cart_item, created = CartItem.objects.get_or_create(cart=user_cart, product=product)
+                if not created:
+                    cart_item.quantity += quantity
+                else:
+                    cart_item.quantity = quantity
+                cart_item.save()
+
+            # ✅ Clean up guest cart session
+            request.session.pop("guest_cart", None)
+            request.session.pop("guest_cart_id", None)
+
+            if user.role in ['owner', 'manager']:
+                logout(request)
+                messages.error(request, "User does not exist.")
+                return redirect('login')
+
+            return redirect('profile')
     else:
         form = AuthenticationForm()
 
     return render(request, 'users/login.html', {'form': form})
+
 
 def logout_view(request):
     logout(request)

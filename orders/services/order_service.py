@@ -5,13 +5,14 @@ from products.models.product import Product
 from notifications.services.notification_service import create_notification
 
 
-def create_order(user, total_price, address, payment_method, is_paid):
+def create_order(user, total_price, address, payment_method, is_paid, branch):
     order = Order.objects.create(
         user=user,
         total_price=total_price,
         shipping_address=str(address),
         payment_method=payment_method,
-        is_paid=is_paid
+        is_paid=is_paid,
+        branch=branch,
     )
     return order
 

@@ -7,6 +7,12 @@ from users.forms import ProfileUpdateForm, AddressForm
 @login_required
 def profile_view(request):
     user = request.user
+
+    if hasattr(request.user, 'manager') or hasattr(request.user, 'owner'):
+        messages.error(request, "You are not allowed to access the user profile.")
+        return redirect('login')
+
+
     profile_form = ProfileUpdateForm(instance=user)
     address_form = AddressForm()
 

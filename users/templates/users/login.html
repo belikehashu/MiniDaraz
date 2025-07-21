@@ -1,9 +1,22 @@
 {% extends "base.html" %}
+{% load static user_filters %}
 {% block title %}Login{% endblock %}
 
 {% block content %}
+<p style="margin-top: 15px; text-align: center;">
+  Are you a seller? <a href="{% url 'brand:seller_login' %}" style="color: #e67e22; font-weight: bold;">Login as Seller</a>
+</p>
+
 <div style="max-width: 480px; margin: 40px auto; padding: 35px 30px; background: #fff; border: 1px solid #ccc; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
   <h2 style="text-align: center; margin-bottom: 25px; color: #2c3e50;">Login to Your Account</h2>
+
+  {% if messages %}
+    <ul style="margin-bottom: 20px;">
+      {% for message in messages %}
+        <li style="color: red; font-weight: bold;">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 
   <form method="post">
     {% csrf_token %}
@@ -52,4 +65,5 @@
     </p>
   </div>
 </div>
+
 {% endblock %}

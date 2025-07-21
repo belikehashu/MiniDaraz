@@ -22,6 +22,7 @@
   <div style="flex: 2; min-width: 300px;">
     <h2 style="font-size: 26px; color: #2c3e50;">{{ product.name }}</h2>
     <p style="font-weight: bold; font-size: 18px; margin-top: 10px;">Price: Rs. {{ product.price }}</p>
+
     <p style="font-size: 16px; color: #27ae60; margin-top: 5px;">
       {% if product.stock > 0 %}
         In Stock: {{ product.stock }}
@@ -47,14 +48,37 @@
         Add to Cart
       </button>
 
+      {% if user.is_authenticated %}
       <button class="ajax-wishlist-btn"
               data-product-id="{{ product.id }}"
               style="flex: 1; height: 40px; background-color: #da3d2c; display: flex; align-items: center; justify-content: center; color: white; border-radius: 5px; font-size: 16px;">
         🤍
       </button>
+      {% endif %}
     </div>
   </div>
 </div>
+
+<!-- 🌟 Full Width Shop Info Card -->
+<div style="margin: 40px 0; background: #fefefe; padding: 25px 30px; border: 1px solid #ddd;
+            border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;">
+
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <div style="font-size: 30px; color: #2980b9;"></div>
+    <div>
+      <h4 style="margin: 0 0 6px; font-size: 20px; color: #2c3e50;">Shop Information</h4>
+      <p style="margin: 4px 0; font-size: 15px; color: #555;">
+        <strong>Brand:</strong> {{ product.branch.brand.name }}
+      </p>
+      <p style="margin: 4px 0; font-size: 15px; color: #555;">
+        <strong>Branch:</strong> {{ product.branch.name }}
+      </p>
+    </div>
+  </div>
+</div>
+
+
+
 
 <div style="margin-top: 30px; background: #fff; padding: 25px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
   <h3 style="margin-top: 0; color: #2c3e50;">Product Description</h3>
@@ -128,107 +152,53 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  const cartBtn = document.querySelector(".ajax-cart-btn");
+  const wishlistBtn = document.querySelector(".ajax-wishlist-btn");
 
-  const reviewForm = document.getElementById("review-form");
-  if (reviewForm) {
-    reviewForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const formData = new FormData(reviewForm);
-      fetch(window.location.href, {
+  if (cartBtn) {
+    cartBtn.addEventListener("click", function () {
+      const productId = this.dataset.productId;
+      fetch("{% url 'ajax_add_to_cart' %}", {
         method: "POST",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-        body: formData
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: `product_id=${productId}`
       })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          document.getElementById("reviews-block").insertAdjacentHTML("afterbegin", data.review_html);
-          reviewForm.remove();
-          const msg = document.getElementById("already-reviewed-msg");
-          if (msg) msg.remove();
+          showToast(data.message);
+          const cartCount = document.getElementById("cart-count");
+          if (cartCount) cartCount.textContent = data.cart_count;
         } else {
-          alert("Please fix errors and try again.");
+          showToast(data.message || "Failed to add to cart.", true);
         }
       });
     });
   }
 
-  document.addEventListener("click", function (e) {
-    if (e.target.classList.contains("edit-review-link")) {
-      e.preventDefault();
-      const reviewId = e.target.dataset.reviewId;
-
-      fetch(`/products/review/edit/${reviewId}/ajax/`, {
+  if (wishlistBtn) {
+    wishlistBtn.addEventListener("click", function () {
+      const productId = this.dataset.productId;
+      fetch(`/wishlist/add/${productId}/`, {
         method: "GET",
         headers: { "X-Requested-With": "XMLHttpRequest" }
       })
       .then(res => res.json())
       .then(data => {
-        const reviewDiv = document.getElementById(`review-${reviewId}`);
-        reviewDiv.innerHTML = data.form_html;
-      });
-    }
-
-    if (e.target.classList.contains("delete-review-link")) {
-      e.preventDefault();
-      const id = e.target.dataset.reviewId;
-      document.getElementById(`delete-confirm-${id}`).style.display = "block";
-    }
-
-    if (e.target.classList.contains("cancel-delete-btn")) {
-      e.preventDefault();
-      const id = e.target.dataset.reviewId;
-      document.getElementById(`delete-confirm-${id}`).style.display = "none";
-    }
-
-    if (e.target.classList.contains("confirm-delete-btn")) {
-      e.preventDefault();
-      const id = e.target.dataset.reviewId;
-      fetch(`/products/review/delete/${id}/ajax/`, {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": "{{ csrf_token }}",
-          "X-Requested-With": "XMLHttpRequest"
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const el = document.getElementById(`review-${id}`);
-          if (el) el.remove();
-          location.reload();
+        if (data.success || data.message) {
+          showToast(data.message);
+          const wishCount = document.getElementById("wishlist-count");
+          if (wishCount) wishCount.textContent = data.wishlist_count;
         } else {
-          alert("Failed to delete review.");
+          showToast("Failed to add to wishlist.", true);
         }
       });
-    }
-  });
-
-  document.addEventListener("submit", function (e) {
-    if (e.target.classList.contains("edit-review-form")) {
-      e.preventDefault();
-      const form = e.target;
-      const reviewId = form.dataset.reviewId;
-      const formData = new FormData(form);
-
-      fetch(`/products/review/edit/${reviewId}/ajax/`, {
-        method: "POST",
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const reviewDiv = document.getElementById(`review-${reviewId}`);
-          reviewDiv.outerHTML = data.review_html;
-        } else {
-          alert("Failed to update review.");
-        }
-      });
-    }
-  });
-
+    });
+  }
 });
 </script>
-
 {% endblock %}

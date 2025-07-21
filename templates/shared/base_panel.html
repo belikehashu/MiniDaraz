@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}MiniDaraz Panel{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">
+  <link rel="stylesheet" href="{% static 'css/panel.css' %}">
+</head>
+<body>
+
+  <header class="panel-header">
+    <div class="panel-container">
+      <div class="logo">
+        <a href="{% url 'index' %}">MiniDaraz</a>
+      </div>
+      <nav class="panel-nav">
+        {% if user_role == "manager" %}
+          <a href="{% url 'manager:dashboard' %}" class="nav-item">Dashboard</a>
+          <a href="{% url 'logout' %}" class="nav-item">Logout</a>
+        {% elif user_role == "owner" %}
+          <a href="{% url 'brand:dashboard' %}" class="nav-item">Dashboard</a>
+          <a href="{% url 'logout' %}" class="nav-item">Logout</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="panel-main">
+    {# Removed the old <ul class="messages"> section to avoid duplicate text #}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="panel-footer">
+    <p>© 2025 MiniDaraz Admin Panel</p>
+  </footer>
+
+  {% block extra_js %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      {% if messages %}
+        {% for message in messages %}
+          const toast = document.createElement('div');
+          toast.className = 'toast-message';
+          toast.innerText = "{{ message }}";
+          toast.style.padding = '12px 20px';
+          toast.style.marginTop = '10px';
+          toast.style.borderRadius = '5px';
+          toast.style.color = '#fff';
+          toast.style.backgroundColor = "{{ message.tags }}" === 'success' ? 'green' : 'red';
+          toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+          toast.style.opacity = 0.9;
+          toast.style.fontSize = '16px';
+          toast.style.animation = 'fadeIn 0.5s ease';
+
+          document.getElementById('toast-container').appendChild(toast);
+
+          setTimeout(() => {
+            toast.remove();
+          }, 4000);
+        {% endfor %}
+      {% endif %}
+    });
+  </script>
+  {% endblock %}
+
+  <!-- Toast container -->
+  <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
+
+</body>
+</html>

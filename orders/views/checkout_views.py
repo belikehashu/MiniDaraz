@@ -1,16 +1,17 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from orders.forms import CartCheckoutForm
-from products.models.product import Product
-from users.models.address import Address
-from orders.services.checkout_service import get_selected_cart_items
-from orders.services.checkout_service import prepare_checkout_items
-from orders.services.checkout_service import handle_cod_order
-from orders.services.checkout_service import handle_stripe_checkout
 
-@login_required
+from orders.forms.cart_checkout_form import CartCheckoutForm
+from orders.forms.guest_checkout_form import GuestCheckoutForm
+from users.models.address import Address
+from orders.services.checkout_service import (
+    get_selected_cart_items,
+    prepare_checkout_items,
+    handle_cod_order,
+    handle_stripe_checkout
+)
+
 def checkout_view(request):
     if request.method == 'POST':
         selected_ids = get_selected_cart_items(request)
@@ -21,30 +22,76 @@ def checkout_view(request):
         return redirect('checkout_confirmation')
     return redirect('cart_view')
 
-@login_required
+
 def unified_checkout_view(request, product_id=None):
     user = request.user
-    addresses = Address.objects.filter(user=user)
     is_buy_now = bool(product_id)
-    items, total_price = prepare_checkout_items(request, product_id, is_buy_now)
+    addresses = Address.objects.filter(user=user) if user.is_authenticated else None
 
     if request.method == 'POST':
-        form = CartCheckoutForm(request.POST, addresses=addresses)
-        payment_method = request.POST.get('payment_method', 'cod')
+        # ✅ first initialize the form
+        form = (
+            CartCheckoutForm(request.POST, addresses=addresses)
+            if user.is_authenticated
+            else GuestCheckoutForm(request.POST)
+        )
+
+        # ✅ second get items with updated quantity from POST
+        items, total_price = prepare_checkout_items(request, product_id, is_buy_now)
 
         if form.is_valid():
-            address_id = form.cleaned_data['address']
-            if payment_method == 'cod':
-                return handle_cod_order(request, user, address_id, items, is_buy_now)
-            if payment_method == 'stripe':
-                return handle_stripe_checkout(request, address_id, items, is_buy_now)
+            if user.is_authenticated:
+                address_id = form.cleaned_data['address']
+                payment_method = form.cleaned_data['payment_method']
+
+                if payment_method == "cod":
+                    return handle_cod_order(request, user, address_id, items, is_buy_now)
+
+                if payment_method == "stripe":
+                    if total_price < 500:
+                        messages.error(request, "Minimum order amount for Stripe payment must be Rs. 500.")
+                    else:
+                        return handle_stripe_checkout(request, address_id, items, is_buy_now)
+
+            else:
+                guest_data = {
+                    "first_name": form.cleaned_data['first_name'],
+                    "last_name": form.cleaned_data['last_name'],
+                    "email": form.cleaned_data['email'],
+                    "phone": form.cleaned_data['phone'],
+                    "street": form.cleaned_data['guest_address'],
+                    "city": form.cleaned_data['city'],
+                    "zip_code": form.cleaned_data['zip_code'],
+                    "province": form.cleaned_data['province'],
+                    "country": form.cleaned_data['country'],
+                    "payment_method": form.cleaned_data['payment_method'],
+                }
+
+                request.session["guest_order_data"] = guest_data
+
+                if guest_data["payment_method"] == "cod":
+                    return handle_cod_order(request, None, None, items, is_buy_now)
+
+                if guest_data["payment_method"] == "stripe":
+                    if total_price < 500:
+                        messages.error(request, "Minimum order amount for Stripe payment must be Rs. 500.")
+                    else:
+                        return handle_stripe_checkout(request, None, items, is_buy_now)
+
     else:
-        form = CartCheckoutForm(addresses=addresses)
+        items, total_price = prepare_checkout_items(request, product_id, is_buy_now)
+        form = (
+            CartCheckoutForm(addresses=addresses)
+            if user.is_authenticated
+            else GuestCheckoutForm()
+        )
 
     return render(request, 'orders/unified_checkout.html', {
-        'items': items,
         'form': form,
-        'product_id': product_id,
+        'items': items,
         'addresses': addresses,
+        'product_id': product_id,
         'total_price': total_price
     })
+
+

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Manager{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manager Login</title>
+</head>
+<body>
+
+<p style="margin-top: 15px; text-align: center;">
+  Are you a customer? 
+  <a href="{% url 'login' %}" style="color: #2980b9; font-weight: bold;">Login as User</a>
+</p>
+
+<div style="max-width: 500px; margin: 40px auto; padding: 35px 30px; border-radius: 10px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #eee;">
+  <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">Manager Login</h2>
+
+  <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+    <a href="{% url 'brand:seller_login' %}" class="toggle-btn">Owner</a>
+    <a href="{% url 'manager:login' %}" class="toggle-btn active">Manager</a>
+  </div>
+
+  {% if messages %}
+    <ul style="margin-bottom: 20px;">
+      {% for message in messages %}
+        <li style="color: red; font-weight: bold;">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="login_type" value="manager">
+
+    <div style="margin-bottom: 18px;">
+      <label>Email</label>
+      <input type="email" name="email" required style="width: 100%; padding: 10px;">
+    </div>
+
+    <div style="margin-bottom: 18px;">
+      <label>Password</label>
+      <input type="password" name="password" required style="width: 100%; padding: 10px;">
+    </div>
+
+    <button type="submit"
+            style="width: 100%; padding: 12px; background-color: #3498db; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 16px;">
+      Login
+    </button>
+  </form>
+</div>
+
+<style>
+  .toggle-btn {
+    padding: 10px 25px;
+    border: 1px solid #ccc;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .toggle-btn.active {
+    background-color: #3498db;
+    color: white !important;
+  }
+</style>
+
+</body>
+</html>
+{% endblock %}

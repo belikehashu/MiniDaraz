@@ -1,0 +1,5 @@
+from .owner_register_view import owner_register_view
+from .dashboard_view import owner_dashboard_view
+from .branch_crud_views import branch_create_view, branch_update_view, branch_delete_view
+from .manager_crud_views import manager_create_view
+from .assign_manager_view import assign_manager_view

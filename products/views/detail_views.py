@@ -9,18 +9,22 @@ from products.models.product_review import ProductReview
 from products.forms import ProductReviewForm
 from products.services.review_service import save_review
 
-@login_required
 def product_detail_view(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     reviews = ProductReview.objects.filter(product=product).order_by("-created_at")
 
-    has_purchased = OrderItem.objects.filter(
-        product=product,
-        order__user=request.user,
-        order__status='Delivered'
-    ).exists()
+    has_purchased = False
+    existing_review = None
 
-    existing_review = ProductReview.objects.filter(user=request.user, product=product).first()
+    if request.user.is_authenticated:
+        has_purchased = OrderItem.objects.filter(
+            product=product,
+            order__user=request.user,
+            order__status='Delivered'
+        ).exists()
+
+        existing_review = ProductReview.objects.filter(user=request.user, product=product).first()
+
     form = None
 
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':

@@ -1,0 +1,46 @@
+{% extends "shared/base_panel.html" %}
+{% block title %}Product List{% endblock %}
+
+{% block content %}
+<div class="dashboard-box">
+  <h2 class="mb-4">Products{% if branch %} – {{ branch.name }}{% endif %}</h2>
+
+  <!-- Branch Filter -->
+  <form method="get" class="mb-4 d-flex gap-3 align-items-center flex-wrap">
+    <label for="branch" class="form-label mb-0">Filter by Branch:</label>
+    <select name="branch" id="branch" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+      <option value="">-- All Branches --</option>
+      {% for br in request.user.manager.branches.all %}
+        <option value="{{ br.id }}" {% if request.GET.branch == br.id|stringformat:"s" %}selected{% endif %}>
+          {{ br.name }}
+        </option>
+      {% endfor %}
+    </select>
+    <a href="{% url 'manager:product_create' %}?branch={{ request.GET.branch }}" class="btn btn-success ms-auto">
+      + Add Product
+    </a>
+  </form>
+
+  {% if products %}
+    {% for product in products %}
+      <div style="display: flex; align-items: center; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 15px; background-color: #fafafa; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+             style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; margin-right: 15px;">
+
+        <div style="flex-grow: 1;">
+          <strong>{{ product.name }}</strong><br>
+          <span style="color: #555;">Rs. {{ product.price }}</span><br>
+          <small style="color: gray;">Stock: {{ product.stock }}</small>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <a href="{% url 'manager:product_update' product.id %}" class="btn btn-sm btn-info">Edit</a>
+          <a href="{% url 'manager:product_delete' product.id %}" class="btn btn-sm btn-danger">Delete</a>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p style="text-align: center; color: #999;">No products found for this branch.</p>
+  {% endif %}
+</div>
+{% endblock %}

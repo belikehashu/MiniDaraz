@@ -1,0 +1,42 @@
+{% extends "shared/base_panel.html" %}
+{% block title %}{{ branch.name }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-box">
+  <h2 class="mb-4">{{ branch.name }}</h2>
+
+  <!-- Top Buttons -->
+  <div class="btn-group-inline mb-4">
+    <a href="{% url 'manager:category_list' %}?branch={{ branch.id }}" class="btn btn-info">Manage Categories</a>
+    <a href="{% url 'manager:order_list' %}?branch={{ branch.id }}" class="btn btn-success">View Orders</a>
+    <a href="{% url 'manager:product_create' %}?branch={{ branch.id }}" class="btn btn-primary">+ Add Product</a>
+  </div>
+<br>
+  <!-- Product List -->
+  {% if products %}
+    <div class="product-list-clean">
+      {% for product in products %}
+        <div class="product-card-clean">
+          <div class="product-card-left">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-card-image">
+          </div>
+
+          <div class="product-card-middle">
+            <h4 class="product-title">{{ product.name }}</h4>
+            <p class="product-price">Rs {{ product.price }}</p>
+            <p class="product-meta">Stock: {{ product.stock }}</p>
+            <p class="product-meta">Category: {{ product.category.name }}</p>
+          </div>
+
+          <div class="product-card-actions">
+            <a href="{% url 'manager:product_update' product.id %}" class="btn btn-sm btn-info">Edit</a>
+            <a href="{% url 'manager:product_delete' product.id %}" class="btn btn-sm btn-danger">Delete</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted text-center">No products found for this branch.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -4,148 +4,81 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}MiniDaraz{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/global.css' %}">
   <style>
-    :root {
-      --primary: #2c3e50;
-      --accent: #3498db;
-      --accent-dark: #2980b9;
-      --success: #2ecc71;
-      --danger: #e74c3c;
-      --gray-light: #f4f4f4;
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
     }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--gray-light);
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
 
-    header {
-      background-color: var(--primary);
-      padding: 15px 0;
+    .toast-message {
+      background-color: #2ecc71;
       color: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    header h1 {
-      margin: 0;
-      text-align: center;
-      font-size: 26px;
-      letter-spacing: 1px;
-    }
-
-    nav {
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    nav a {
-      display: inline-block;
-      color: #ecf0f1;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: 500;
-      padding: 5px 8px;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: var(--accent);
-    }
-
-    main {
-      padding: 30px 20px;
-      max-width: 1100px;
-      margin: 0 auto;
-      background-color: white;
-      min-height: 80vh;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-
-    footer {
-      background-color: var(--primary);
-      color: white;
-      text-align: center;
-      padding: 12px;
-      font-size: 14px;
-      margin-top: 40px;
-    }
-
-    ul.messages {
-      list-style: none;
-      padding: 0;
-      margin-bottom: 20px;
-    }
-
-    ul.messages li {
-      font-weight: 500;
-      padding: 10px 12px;
+      padding: 12px 18px;
       margin-bottom: 10px;
       border-radius: 6px;
-      background-color: #e9f9ec;
-      border-left: 4px solid var(--success);
-      color: var(--success);
-    }
-
-    ul.messages li.error {
-      background-color: #fcebea;
-      border-left-color: var(--danger);
-      color: var(--danger);
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
+      opacity: 0;
+      animation: fadeInOut 4s ease forwards;
     }
 
-    button:hover {
-      background-color: var(--accent-dark);
-      transform: translateY(-1px);
+    .toast-error {
+      background-color: #e74c3c;
     }
 
-    a button {
-      margin-right: 10px;
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-10px) translateX(-50%); }
+      10% { opacity: 1; transform: translateY(0) translateX(-50%); }
+      90% { opacity: 1; transform: translateY(0) translateX(-50%); }
+      100% { opacity: 0; transform: translateY(-10px) translateX(-50%); }
     }
 
-    @media (max-width: 768px) {
-      nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-      }
-    }
   </style>
+
 </head>
 <body>
-  <header>
-    <h1>MiniDaraz</h1>
-    <nav>
-      <a href="{% url 'index' %}">Home</a> |
-      <a href="{% url 'cart_view' %}">Cart (<span id="cart-count">{{ cart_count|default:"0" }}</span>)</a> |
-      <a href="{% url 'order_history' %}">My Orders</a> |
-      <a href="{% url 'wishlist' %}">Wishlist (<span id="wishlist-count">{{ wishlist_count|default:"0" }}</span>)</a> |
-      <a href="{% url 'notifications' %}">Notifications (<span id="notif-count">{{ notification_unread_count|default:"0" }}</span>)</a> |
-      {% if user.is_authenticated %}
-        {% if user.is_superuser %}
-          <a href="{% url 'admin_dashboard' %}">Admin Panel</a> |
+
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo">
+        <a href="{% url 'index' %}">MiniDaraz</a>
+      </div>
+
+      <div class="nav-right">
+        {% if user.is_authenticated %}
+          {% if user_role == "user" %}
+            <a href="{% url 'index' %}" class="nav-item">Home</a>
+            <a href="{% url 'cart_view' %}" class="nav-item">
+              Cart <span class="count" id="cart-count">{{ cart_count|default:"0" }}</span>
+            </a>
+            <a href="{% url 'wishlist' %}" class="nav-item">
+              Wishlist <span class="count" id="wishlist-count">{{ wishlist_count|default:"0" }}</span>
+            </a>
+            <a href="{% url 'notifications' %}" class="nav-item">
+              Notifications <span class="count">{{ notification_unread_count|default:"0" }}</span>
+            </a>
+            <a href="{% url 'order_history' %}" class="nav-item">Orders</a>
+            <a href="{% url 'profile' %}" class="nav-item">Profile</a>
+            <a href="{% url 'logout' %}" class="nav-item">Logout</a>
+          {% elif user_role == "manager" %}
+            <a href="{% url 'manager:dashboard' %}" class="nav-item">Dashboard</a>
+            <a href="{% url 'logout' %}" class="nav-item">Logout</a>
+          {% elif user_role == "owner" %}
+            <a href="{% url 'brand:dashboard' %}" class="nav-item">Dashboard</a>
+            <a href="{% url 'logout' %}" class="nav-item">Logout</a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'index' %}" class="nav-item">Home</a>
+          <a href="{% url 'cart_view' %}" class="nav-item">Cart</a>
+          <a href="{% url 'login' %}" class="nav-item">Login</a>
         {% endif %}
-        <a href="{% url 'profile' %}">Profile</a> |
-        <a href="{% url 'logout' %}">Logout</a>
-      {% else %}
-        <a href="{% url 'login' %}">Login</a> |
-        <a href="{% url 'register' %}">Register</a>
-      {% endif %}
-    </nav>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -165,82 +98,23 @@
     <p>© 2025 MiniDaraz. All rights reserved.</p>
   </footer>
 
-  {% block extra_js %}{% endblock %}
+  <!-- 🔥 Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
 
+  <!-- 🔥 Toast Script -->
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      function showMessage(msg, type = "success") {
-        let msgList = document.querySelector("ul.messages");
-        if (!msgList) {
-          msgList = document.createElement("ul");
-          msgList.className = "messages";
-          document.querySelector("main").prepend(msgList);
-        }
-        const li = document.createElement("li");
-        li.textContent = msg;
-        li.className = (type === "error") ? "error" : "";
-        msgList.appendChild(li);
-        setTimeout(() => li.remove(), 5000);
-      }
-
-      document.querySelectorAll(".ajax-cart-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-          const productId = this.getAttribute("data-product-id");
-          fetch("{% url 'ajax_add_to_cart' %}", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: `product_id=${productId}`
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              document.getElementById("cart-count").textContent = data.cart_count;
-              showMessage("Added to cart.");
-            } else {
-              showMessage(data.message || "Error adding to cart.", "error");
-            }
-          })
-          .catch(() => showMessage("Network error.", "error"));
-        });
-      });
-
-      document.querySelectorAll(".ajax-wishlist-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-          const productId = this.getAttribute("data-product-id");
-          fetch(`/wishlist/add/${productId}/`, {
-            method: "GET",
-            headers: {
-              "X-Requested-With": "XMLHttpRequest"
-            }
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              document.getElementById("wishlist-count").textContent = data.wishlist_count;
-              showMessage(data.message || "Added to wishlist!");
-            } else {
-              showMessage(data.message || "Something went wrong.", "error");
-            }
-          })
-          .catch(() => showMessage("Error adding to wishlist.", "error"));
-        });
-      });
-
-      function updateNotificationCount() {
-        fetch("{% url 'unread_notification_count' %}")
-          .then(res => res.json())
-          .then(data => {
-            const notifSpan = document.getElementById("notif-count");
-            if (notifSpan) notifSpan.textContent = data.count;
-          });
-      }
-
-      updateNotificationCount();
-      setInterval(updateNotificationCount, 30000);
-    });
+    function showToast(message, isError = false) {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast-message" + (isError ? " toast-error" : "");
+      toast.innerText = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 4000);
+    }
   </script>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

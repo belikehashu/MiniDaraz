@@ -18,9 +18,10 @@ INSTALLED_APPS = [
     'products',
     'cart',
     'orders',
-    'adminpanel',
     'wishlist',
     'notifications',
+    'brandpanel',
+    'managerpanel',
 ]
 
 MIDDLEWARE = [
@@ -49,50 +50,12 @@ TEMPLATES = [
                 'cart.context_processors.cart_item_count',
                 'wishlist.context_processors.wishlist_item_count',
                 'notifications.context_processors.unread_notification_count',
+                'users.context_processors.user_role_context',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'minidaraz.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'minidarazdb',
-        'USER': 'darazadmin',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Karachi'
-USE_I18N = True
-USE_TZ = True
-
-STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'users.User'
-LOGIN_URL = '/users/login/'
 
 

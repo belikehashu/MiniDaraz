@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Owner{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Owner Login</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 35px 30px;
+      border-radius: 10px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid #eee;
+    }
+
+    .toggle-btn {
+      padding: 10px 25px;
+      border: 1px solid #ccc;
+      background-color: #eee;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .toggle-btn.active {
+      background-color: #3498db;
+      color: white !important;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 18px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .message {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 20px;
+    }
+
+    .message li {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .nav-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .nav-link a {
+      color: #2980b9;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="nav-link">
+    Are you a customer?
+    <a href="{% url 'login' %}">Login as User</a>
+  </div>
+
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">Owner Login</h2>
+
+    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+      <a href="{% url 'brand:seller_login' %}" class="toggle-btn active">Owner</a>
+      <a href="{% url 'manager:login' %}" class="toggle-btn">Manager</a>
+    </div>
+
+    {% if messages %}
+      <ul class="message">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="login_type" value="owner">
+
+      <label>Email</label>
+      <input type="email" name="email" class="form-control" required>
+
+      <label>Password</label>
+      <input type="password" name="password" class="form-control" required>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="nav-link" style="margin-top: 20px;">
+      Don't have a brand? 
+      <a href="{% url 'brand:register' %}" style="color: #27ae60;">Register here</a>
+    </div>
+  </div>
+</body>
+</html>
+{% endblock %}

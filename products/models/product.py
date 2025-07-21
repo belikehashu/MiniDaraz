@@ -1,5 +1,6 @@
 from django.db import models
 from .category import Category
+from brandpanel.models.branch import Branch
 from products.services.stock_notification_service import handle_stock_notification
 
 class Product(models.Model):
@@ -9,6 +10,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     stock = models.PositiveIntegerField(default=0)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='products')
 
     def save(self, *args, **kwargs):
         old_stock = None

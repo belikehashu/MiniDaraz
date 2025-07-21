@@ -40,11 +40,12 @@
 
       <div style="padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
-          <h3 style="margin: 0 0 10px; font-size: 17px; font-weight: bold; height: 60px; overflow: hidden;">
+          <h3 style="margin: 0 0 6px; font-size: 17px; font-weight: bold; height: 50px; overflow: hidden;">
             <a href="{% url 'product_detail' product.id %}" style="color: #2c3e50; text-decoration: none;">
               {{ product.name|slice:":70" }}{% if product.name|length > 70 %}...{% endif %}
             </a>
           </h3>
+          <p style="margin: 0; font-size: 13px; color: #888;">Branch: {{ product.branch.name }}</p>
 
           <div style="font-size: 14px; color: #221f1f; font-weight: bold; margin-bottom: 12px;">
             <h3>Rs. {{ product.price }}</h3>
@@ -64,11 +65,13 @@
             Cart
           </button>
 
-          <button class="ajax-wishlist-btn"
-                  data-product-id="{{ product.id }}"
-                  style="height: 35px; width: 40px; background-color: #da3d2c; display: flex; align-items: center; justify-content: center; color: white; border: none; border-radius: 5px; font-size: 16px;">
-            🤍
-          </button>
+          {% if user.is_authenticated %}
+            <button class="ajax-wishlist-btn"
+                    data-product-id="{{ product.id }}"
+                    style="height: 35px; width: 40px; background-color: #da3d2c; display: flex; align-items: center; justify-content: center; color: white; border: none; border-radius: 5px; font-size: 16px;">
+              🤍
+            </button>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -81,11 +84,64 @@
   {% if page_obj.has_previous %}
     <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="margin-right: 10px;">← Previous</a>
   {% endif %}
-
   Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-
   {% if page_obj.has_next %}
     <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" style="margin-left: 10px;">Next →</a>
   {% endif %}
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".ajax-cart-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const productId = this.dataset.productId;
+        fetch("{% url 'ajax_add_to_cart' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          body: `product_id=${productId}`
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            showToast("🛒 " + data.message);
+            const cartCountEl = document.getElementById("cart-count");
+            if (cartCountEl) {
+              cartCountEl.innerText = data.cart_count;
+            }
+          } else {
+            showToast(data.message || "Failed to add to cart.", true);
+          }
+        });
+      });
+    });
+
+    document.querySelectorAll(".ajax-wishlist-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const productId = this.dataset.productId;
+        fetch(`/wishlist/add/${productId}/`, {
+          method: "GET",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success || data.message) {
+            showToast("❤️ " + data.message);
+            const wishlistCountEl = document.getElementById("wishlist-count");
+            if (wishlistCountEl) {
+              wishlistCountEl.innerText = data.wishlist_count;
+            }
+          } else {
+            showToast("Failed to add to wishlist.", true);
+          }
+        });
+      });
+    });
+  });
+</script>
 {% endblock %}
